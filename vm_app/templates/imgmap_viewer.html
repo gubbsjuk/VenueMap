@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block page_content %}
+{% load static %}
+<h1>{{ venue.name }}</h1>
+<div class="row">
+    <div class="col-sm-6">
+        <p>Click on the desired room to see more information about it:</p>
+        <img src="{{ venue.arenalayout.url }}" alt="Workplace" usemap="#workmap">
+        <map name="workmap">
+            {% for room in rooms %}
+            <area class="roomButton" onclick="myFunction({{ room.pk }})" shape="{{ room.shape.shape }}" coords="{% for coord in coordmap %}{{ coord.coordinate }}, {% endfor %}" alt="{{ room.name }}" id="roomPk"{{ room.pk }}>
+            {% endfor %}
+        </map>
+    </div>
+    <div class="col-sm-6">
+        {% include 'room_detail.html' %}
+    </div>
+</div>
+
+<script src="{% static 'app.js' %}"></script>
+{% endblock %}

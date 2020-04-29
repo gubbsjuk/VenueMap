@@ -1,0 +1,21 @@
+'Cmd/Ctrl+Enter'    // Triggers `Todo: Toggle Box`
+'Alt+Enter'         // Triggers `Todo: Toggle Box`
+'Alt+D'             // Triggers `Todo: Toggle Done`
+'Alt+C'             // Triggers `Todo: Toggle Cancelled`
+'Alt+S'             // Triggers `Todo: Toggle Start`
+'Cmd/Ctrl+Shift+A'  // Triggers  `Todo: Archive`
+Todo:
+  ☐ Create a decent home page
+    ☐ List of venues
+    ☐ Upcoming activties(max 10items?)
+    ☐ Quickly get to remotes??
+    ☐ Possible to make it modular???
+  ☐ User authentication checks / Permission checks
+    ☐ Limit user to only show selected venues. (Needs custom field in User with list of venues??)
+  
+  ☐ READ UP ON custom user models THIS: @started(20-04-28 05:07)
+    ✔ https://learndjango.com/tutorials/django-best-practices-referencing-user-model @done(20-04-28 05:07)
+    ✔ https://testdriven.io/blog/django-custom-user-model/ @done(20-04-28 05:07)
+    ☐ https://medium.com/agatha-codes/options-objects-customizing-the-django-user-model-6d42b3e971a4
+    ☐ https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
+    ☐ https://learndjango.com/tutorials/django-custom-user-model

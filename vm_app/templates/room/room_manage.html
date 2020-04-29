@@ -1,0 +1,65 @@
+{% extends 'base.html' %}¨
+{% block page_content %}
+<script>
+    $(document).ready(function() {
+        var test = "asdf";
+        var select = document.createElement("select");
+        select.name = "venueSelector";
+        select.id = "venueSelector";
+
+        var blank = document.createElement("option");
+        blank.value = "noFilter";
+        blank.text = "";
+        select.appendChild(blank);
+
+        {% for venue in venues %}
+        {% autoescape off %}
+            var option = document.createElement("option");
+            option.value = "{{venue.pk}}";
+            option.text = "{{venue.name}}";
+            select.appendChild(option);
+        {% endautoescape %}
+        {% endfor %}
+
+        var label = document.createElement("label");
+        label.innerHTML = "Filter on Venue: ";
+        label.htmlFor = "venueSelector";
+
+        document.getElementById("divVenueSelection").appendChild(label).appendChild(select);
+
+        req = $.ajax({
+                    url : '/room_list',
+                    type : 'GET',
+                });
+
+                req.done(function(data) {
+                    $('#roomList').fadeOut(0).fadeIn(500);
+                    $('#roomList').html(data);
+                });
+
+        select.addEventListener("change", function() {
+            var selIndex = select.selectedIndex;
+            if(selIndex >= 0) {
+                var data = select.options[selIndex].value;
+
+                req = $.ajax({
+                    url : '/room_list',
+                    type : 'GET',
+                    data : {'venuePK' : data}
+                });
+
+                req.done(function(data) {
+                    $('#roomList').fadeOut(0).fadeIn(500);
+                    $('#roomList').html(data);
+                });
+            }
+        });
+    });
+</script>
+<div id="divVenueSelection"></div>
+
+<div id="roomList">
+    {% include 'room/room_list.html' %}
+</div>
+
+{% endblock %}

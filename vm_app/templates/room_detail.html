@@ -1,0 +1,11 @@
+{% block detail_content %}
+<div id="activitySection">
+    <h1>Schedule:</h1>
+    <p>{{ room.name }}</p>
+    <ul>
+        {% for activity in activities %}
+        <li>{{ activity.startdate }}, {{ activity.enddate }}, {{ activity.name }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

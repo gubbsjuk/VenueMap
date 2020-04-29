@@ -1,0 +1,13 @@
+{% block detail_content %}
+    <ul>
+        {% for room in rooms %}
+        <li>
+                {{ room.pk }} {{ room.name }}, {{ room.venue }}
+                <a href="#" >Edit</a>
+                {% if perms.maptest.delete_room %}
+                <a href="#" >Delete</a>
+                {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
