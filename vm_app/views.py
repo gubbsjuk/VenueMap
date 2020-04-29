@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.forms import formset_factory
 from django.views import View
+from django.utils import timezone
 from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules
 from .forms import CreateRoomForm, CreateCoordinatesForm
 
@@ -17,16 +18,15 @@ def home_view(request):
             result = int(request.GET.__getitem__('modulePos'))
             modules = HomeModules.objects.get(user_id=request.user)
             print(result)
-            print(modules.module1)
+            print(modules.module2)
             if result == 1:
                 print("in result == 1")
                 data = return_module(request, str(modules.module1))
                 return JsonResponse(data, safe=False)
-            if result == 'venue':
-                venues_view(request)
-            if result == 'today':
-                activities_view(request, max=10)
-        
+            if result == 2:
+                data = return_module(request, str(modules.module2))
+                return JsonResponse(data, safe=False)
+
         homemodulenames = HomeModuleNames.objects.all()
         context = {
             'homemodulenames' : homemodulenames
@@ -36,19 +36,39 @@ def home_view(request):
 
 def return_module(request, module):
     print("in return function")
+    data = []
+    d = {'header' : module}
+    data.append(d)
+
     if module == 'venue':
         print("module is venue!")
         venues = filter_venues_by_user(request)
-        data = []
-        d = {'header' : module}
-        data.append(d)
         for venue in venues:
-            jsonobj = {'name' : venue.name, 
-                        'pk' : venue.pk}
+            jsonobj = {'name' : venue.name,
+                       'pk' : venue.pk}
             data.append(jsonobj)
-        
+        return data
+    if module == 'today':
+        print("module is today!")
+        today = filter_activities_by_user(request)
+        today = today.filter(
+            startdate__gte=timezone.now().replace(hour=0, minute=0, second=0),
+            enddate__lte=timezone.now().replace(hour=23, minute=59, second=59))[:5]
+        for act in today:
+            jsonobj = {'name'   : act.name,
+                       'start'  : act.startdate,
+                       'end'    : act.enddate,
+                       'room'   : act.room,
+                       'pk'     : act.pk}
+            data.append(jsonobj)
         return data
 
+
+def filter_activities_by_user(request):
+    rooms = filter_rooms_by_user(request)
+    activities = Activities.objects.filter(room__in=rooms)
+
+    return activities
 
 def filter_venues_by_usergroup(request):
     ''' Utilitary function to filter Venues by their assigned client. '''
@@ -56,7 +76,7 @@ def filter_venues_by_usergroup(request):
     return Venue.objects.filter(client__in=current_usergroups)
 
 def filter_venues_by_user(request):
-    ''' Utilitart function to filter Venues by user permitted to view.
+    ''' Utilitary function to filter Venues by user permitted to view.
         Currently not implemented and returns Venue.objects.get() '''
     user = request.user
     venue = Venue.objects.filter(customuser=user)

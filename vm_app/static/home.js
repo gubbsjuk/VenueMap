@@ -1,4 +1,4 @@
-
+// Cookie functions not currently in use. Grabbing from db instead.
 
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
@@ -22,16 +22,12 @@ function getCookie(cname) {
     }
     return "";
 }
+
 createModule(1);
+createModule(2);
 
 function createModule(modulePos) {
-    console.log("function called");
     sendGET(modulePos);
-
-}
-
-function populate(modulePos, data) {
-    {{}}
 }
 
 function populateModule(modulePos, data) {
@@ -43,21 +39,39 @@ function populateModule(modulePos, data) {
     var divBody = document.createElement("div");
     var body = document.createElement("ul");
 
+    var moduletype;
     data.forEach(function(element){
         if (element["header"]){
-            if (element["header"] == "venue") {
+            moduletype = element["header"]
+            if (moduletype == "venue") {
                 headertext = document.createTextNode("My Venues:");
+            }
+            if (moduletype == "today") {
+                headertext = document.createTextNode("Activities today:");
             }
 
         } else {
-            var li = document.createElement('li');
-            var a = document.createElement('a');
-            var linkText = document.createTextNode(element["name"]);
-            a.appendChild(linkText);
-            a.title= element["name"];
-            a.href = "/venue/" + element["pk"];
-            li.appendChild(a);
-            body.appendChild(li);
+            if (moduletype == "venue") {
+                var li = document.createElement('li');
+                var a = document.createElement('a');
+                var linkText = document.createTextNode(element["name"]);
+                a.appendChild(linkText);
+                a.title= element["name"];
+                a.href = "/venue/" + element["pk"];
+                li.appendChild(a);
+                body.appendChild(li);
+            }
+
+            if (moduletype == "today") {
+                var li = document.createElement('li');
+                var a = document.createElement('a');
+                var linkText = document.createTextNode(element["name"]);
+                a.appendChild(linkText);
+                a.title = element["name"];
+                a.href = "/activites/" + element["pk"];
+                li.appendChild(a);
+                body.appendChild(li);
+            }
         }
     })
 
