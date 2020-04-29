@@ -1,16 +1,54 @@
 ''' Define views attached to templates here. '''
+from django.core import serializers
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.forms import formset_factory
-from .models import Venue, Room, Coordinates, Activities
+from django.views import View
+from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules
 from .forms import CreateRoomForm, CreateCoordinatesForm
 
 # Create your views here.
 def home_view(request):
     ''' base/start page view '''
 
-    return render(request, 'home.html', {})
+    if request.method == 'GET':
+        if request.GET.__contains__('modulePos'):
+            result = int(request.GET.__getitem__('modulePos'))
+            modules = HomeModules.objects.get(user_id=request.user)
+            print(result)
+            print(modules.module1)
+            if result == 1:
+                print("in result == 1")
+                data = return_module(request, str(modules.module1))
+                return JsonResponse(data, safe=False)
+            if result == 'venue':
+                venues_view(request)
+            if result == 'today':
+                activities_view(request, max=10)
+        
+        homemodulenames = HomeModuleNames.objects.all()
+        context = {
+            'homemodulenames' : homemodulenames
+        }
+
+    return render(request, 'home.html', context)
+
+def return_module(request, module):
+    print("in return function")
+    if module == 'venue':
+        print("module is venue!")
+        venues = filter_venues_by_user(request)
+        data = []
+        d = {'header' : module}
+        data.append(d)
+        for venue in venues:
+            jsonobj = {'name' : venue.name, 
+                        'pk' : venue.pk}
+            data.append(jsonobj)
+        
+        return data
+
 
 def filter_venues_by_usergroup(request):
     ''' Utilitary function to filter Venues by their assigned client. '''
@@ -20,13 +58,21 @@ def filter_venues_by_usergroup(request):
 def filter_venues_by_user(request):
     ''' Utilitart function to filter Venues by user permitted to view.
         Currently not implemented and returns Venue.objects.get() '''
-    venue = Venue.objects.get()
+    user = request.user
+    venue = Venue.objects.filter(customuser=user)
+
     return venue
+
+def filter_rooms_by_user(request):
+    venues = filter_venues_by_user(request)
+    rooms = Room.objects.filter(venue__in=venues)
+
+    return rooms
 
 def venues_view(request):
     ''' View that returns venues filtered by client.
         Context: 'venues' : venue '''
-    venue = filter_venues_by_usergroup(request)
+    venue = filter_venues_by_user(request)
     context = {
         "venues" : venue,
     }
@@ -147,3 +193,16 @@ def room_list_view(request):
             'venues' : venues,
         }
         return render(request, 'room/room_list.html', context)
+
+def activities_view(request, **kwargs):
+    maxact = kwargs.pop('max')
+    rooms = filter_rooms_by_user(request)
+    if maxact:
+        activities = Activities.objects.filter(room__in=rooms)[:maxact]
+
+    activities = Activities.objects.filter(room__in=rooms)
+    context = {
+        'activities' : activities
+    }
+
+    return render(request, 'activities_list.html', context)

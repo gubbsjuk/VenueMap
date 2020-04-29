@@ -1,7 +1,16 @@
 ''' Define forms for the application here. '''
 from django.forms import ModelForm, Select, HiddenInput
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import Room, Coordinates, CustomUser
+from .models import Room, Coordinates, CustomUser, HomeModuleNames
+
+class HomeModelNamesForm:
+
+    class Meta:
+        model = HomeModuleNames
+        fields = '__all__'
+        widgets = {
+            'name' : Select(attrs={"onChange" : 'modelChanged(this)'}) 
+        }
 
 class CustomUserCreationForm(UserCreationForm):
     ''' Custom form for creating users. Required when implementing CustomUser model '''

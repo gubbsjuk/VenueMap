@@ -1,11 +1,28 @@
 {% extends 'base.html' %}
 {% block page_content %}
-    <div id="Venues">
-        {% include 'venues.html' %}
+{% load static %}
+
+<div class="container">
+    <div class="card-deck">
+        <div class="card" id="module1">
+        </div>
+        <div class="card" id="module2">
+            <div class="card-header">
+                <h5>Module2</h5>
+            </div>
+        </div>
     </div>
 
-    <div id="RecentActivites">
-        
+</div>
+    <div id="module_container">
+        {% for m in modules %}
+        <div id="{{m}}_id">
+
+        </div>
+
+        {% endfor %}
     </div>
+    <script src="{% static 'home.js' %}">
+    </script>
 
 {% endblock %}
