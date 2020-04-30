@@ -58,7 +58,7 @@ def return_module(request, module):
             jsonobj = {'name'   : act.name,
                        'start'  : act.startdate,
                        'end'    : act.enddate,
-                       'room'   : act.room,
+                       'room'   : act.room.name,
                        'pk'     : act.pk}
             data.append(jsonobj)
         return data

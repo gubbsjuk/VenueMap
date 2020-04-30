@@ -66,10 +66,12 @@ function populateModule(modulePos, data) {
                 var li = document.createElement('li');
                 var a = document.createElement('a');
                 var linkText = document.createTextNode(element["name"]);
+                var start = document.createTextNode(element["start"]);
                 a.appendChild(linkText);
                 a.title = element["name"];
                 a.href = "/activites/" + element["pk"];
                 li.appendChild(a);
+                li.appendChild(start);
                 body.appendChild(li);
             }
         }
