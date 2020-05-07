@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.forms import formset_factory
 from django.utils import timezone
 from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules
-from .forms import CreateRoomForm, CreateCoordinatesForm, HomeModelNamesForm
+from .forms import CreateRoomForm, CreateCoordinatesForm, HomeModelNamesForm, ActivityForm
 
 
 # Create your views here.
@@ -267,3 +267,13 @@ def activities_view(request, **kwargs):
     }
 
     return render(request, 'activities_list.html', context)
+
+def activity_create_view(request):
+    if request.method == 'POST':
+        form = ActivityForm(request.POST)
+        print(form.errors)
+        if form.is_valid():
+            savedmodel = form.save()
+            return HttpResponse(savedmodel.pk)
+    form = ActivityForm()
+    return render(request, 'activity_create.html', {'form' : form})

@@ -62,11 +62,12 @@ function venueModule(data) {
 function activitiesModule(data, today) {
     var body = document.createElement("TABLE");
     var rooms = [];
-
     //For loop to get all rooms, and sort them?
     data.forEach(function(element) {
         if(!element["header"]) {
-            rooms.push(element["room"]);
+            if (!rooms.includes(element["room"])) {
+                rooms.push(element["room"]);
+            }
         }
     });
     rooms.sort();

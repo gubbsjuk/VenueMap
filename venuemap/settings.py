@@ -37,6 +37,10 @@ INTERNAL_IPS = [
 
 AUTH_USER_MODEL = 'vm_app.CustomUser'
 
+# TEMPUS DOMINUS SETTINGS
+TEMPUS_DOMINUS_LOCALIZE = False # Default false.
+TEMPUS_DOMINUS_INCLUDE_ASSETS = True # Default true, loads Tempus Dominus and moment JS and CSS from cloudfare CDN.
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -48,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'vm_app',
     'debug_toolbar',
+    'tempus_dominus',
 ]
 
 MIDDLEWARE = [
