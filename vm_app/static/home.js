@@ -28,7 +28,7 @@ createModule(1);
 createModule(2);
 
 function createModule(modulePos) {
-    getModules(modulePos);
+    updateModule(modulePos, null, false);
 }
 
 function getModuleNames(data) {
@@ -59,7 +59,7 @@ function createModuleSelector(modulePos, data, init) {
         }
     }
     select.onchange = function(e) {
-        updateModule(modulePos, select.options[select.selectedIndex].value);
+        updateModule(modulePos, select.options[select.selectedIndex].value, true);
     };
 
     return form;
@@ -75,7 +75,7 @@ function venueModule(data) {
             var linkText = document.createTextNode(element["name"]);
             a.appendChild(linkText);
             a.title= element["name"];
-            a.href = "/venue/" + element["pk"];
+            a.href = "/venues/" + element["pk"];
             li.appendChild(a);
             body.appendChild(li);
         }
@@ -104,7 +104,7 @@ function todayModule(data) {
     return body;
 }
 
-//TODO: Implement filtering by room on activites. Should also filter out expired activities.
+//TODO: Implement ordering by room on activites. Should also filter out expired activities.
 function activitiesModule(data) {
     var body = document.createElement("ul");
     data.forEach(function(element){
@@ -139,7 +139,6 @@ function tocleanModule(data) {
 }
 
 //Called by sendGet function
-//Optimize: Segment out different views.
 function populateModule(modulePos, data) {
     var divHeader = document.getElementById("module"+modulePos+"-header");
     var divBody = document.getElementById("module"+modulePos+"-body");
@@ -184,8 +183,12 @@ function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
-function updateModule(modulePos, module) {
+function updateModule(modulePos, module, update) {
     var csrftoken = getCookie('csrftoken');
+
+    if (!update) {
+        module = null;
+    }
 
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
@@ -200,24 +203,11 @@ function updateModule(modulePos, module) {
         type : 'POST',
         data : {
             modulePos : modulePos,
-            module : module 
+            module : module,
+            update : update,
         }
     });
 
-    req.done(function(data) {
-        populateModule(modulePos, data);
-    });
-}
-
-//TODO: Change this to POST?
-function getModules(modulePos) {
-    req = $.ajax({
-        url : '/',
-        type : 'GET',
-        data : {
-                modulePos : modulePos
-            }
-    });
     req.done(function(data) {
         populateModule(modulePos, data);
     });
