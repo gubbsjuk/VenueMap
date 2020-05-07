@@ -84,43 +84,54 @@ function venueModule(data) {
     return body;
 }
 
-function todayModule(data) {
-    var body = document.createElement("ul");
-    data.forEach(function(element){
-        if (!element["header"]) {
-            var li = document.createElement('li');
-            var a = document.createElement('a');
-            var linkText = document.createTextNode(element["name"]);
-            var start = document.createTextNode(element["start"]);
-            a.appendChild(linkText);
-            a.title = element["name"];
-            a.href = "/activites/" + element["pk"];
-            li.appendChild(a);
-            li.appendChild(start);
-            body.appendChild(li);
-        }
-    });
-    
-    return body;
-}
+function activitiesModule(data, today) {
+    var body = document.createElement("TABLE");
+    var rooms = [];
 
-//TODO: Implement ordering by room on activites. Should also filter out expired activities.
-function activitiesModule(data) {
-    var body = document.createElement("ul");
-    data.forEach(function(element){
-        if (!element["header"]) {
-            var li = document.createElement('li');
-            var a = document.createElement('a');
-            var linkText = document.createTextNode(element["name"]);
-            var start = document.createTextNode(element["start"]);
-            a.appendChild(linkText);
-            a.title = element["name"];
-            a.href = "/activites/" + element["pk"];
-            li.appendChild(a);
-            li.appendChild(start);
-            body.appendChild(li);
+    //For loop to get all rooms, and sort them?
+    data.forEach(function(element) {
+        if(!element["header"]) {
+            rooms.push(element["room"]);
         }
     });
+    rooms.sort();
+    
+    //For loop to add all activities under current room to table
+    rooms.forEach(function(room){
+        var headerRow = document.createElement("tr");
+        var header = document.createElement("th");
+        var roomtext = document.createTextNode(room);
+        header.appendChild(roomtext);
+        headerRow.appendChild(header);
+        body.appendChild(headerRow);
+        data.forEach(function(element){
+            if (element["room"] == room) {
+                var tablerow = document.createElement("tr");
+
+                var activitydata = document.createElement("td");
+                var activitytext = document.createTextNode(element["name"]);
+                activitydata.appendChild(activitytext);
+                var startDateTime = new Date(element["start"]);
+
+                if (today) {
+                    var startText = startDateTime.toLocaleTimeString();
+                }
+                else {
+                    var startText = startDateTime.toDateString() + " - " + startDateTime.toLocaleTimeString();
+                }
+                
+                var datedata = document.createElement("td");
+                var datetext = document.createTextNode(startText);
+                datedata.appendChild(datetext);
+
+                tablerow.appendChild(activitydata);
+                tablerow.appendChild(datedata);
+
+                body.appendChild(tablerow);
+            }
+        });
+    });
+
     return body;
 }
 
@@ -128,6 +139,18 @@ function activitiesModule(data) {
 function roomsModule(data) {
     var body = document.createElement("ul");
 
+    data.forEach(function(element){
+        if (!element["header"]){
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            var linkText = document.createTextNode(element["name"]);
+            a.appendChild(linkText);
+            a.title= element["name"];
+            a.href = "/rooms/" + element["pk"];
+            li.appendChild(a);
+            body.appendChild(li);
+        }
+    });
     return body;
 }
 
@@ -138,7 +161,7 @@ function tocleanModule(data) {
     return body;
 }
 
-//Called by sendGet function
+//Called by updateModule function
 function populateModule(modulePos, data) {
     var divHeader = document.getElementById("module"+modulePos+"-header");
     var divBody = document.getElementById("module"+modulePos+"-body");
@@ -158,11 +181,11 @@ function populateModule(modulePos, data) {
         }
         if (moduletype == 2) { // ACTIVITIES
             headertext = document.createTextNode("Upcoming Activities:");
-            divBody.appendChild(activitiesModule(data));
+            divBody.appendChild(activitiesModule(data, false));
         }
         if (moduletype == 3) { // TODAY
             headertext = document.createTextNode("Activities today:");
-            divBody.appendChild(todayModule(data));
+            divBody.appendChild(activitiesModule(data, true));
         }
         if (moduletype == 4) { // ROOMS
             headertext = document.createTextNode("My Rooms:");

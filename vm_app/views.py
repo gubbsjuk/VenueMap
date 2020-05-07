@@ -49,6 +49,7 @@ def home_view(request):
                     if modulepos == 5:
                         modules.module5 = selectedmodule
                     modules.save()
+                    data = return_module(request, selectedmodule)
                 elif request.POST.__getitem__('update') == "false":
                     if modulepos == 1:
                         data = return_module(request, modules.module1)
