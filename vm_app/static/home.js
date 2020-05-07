@@ -1,35 +1,10 @@
-// Cookie functions not currently in use. Grabbing from db instead.
+// variable for passing in modulenames from template.
+//OPTIMIZE: Can this be removed?
 var modulenames;
 
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-function getCookie(cname) {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length,c.length);
-        }
-    }
-    return "";
-}
-
-createModule(1);
-createModule(2);
-
-function createModule(modulePos) {
-    updateModule(modulePos, null, false);
-}
+//create modules
+updateModule(1, null, false);
+updateModule(2, null, false);
 
 function getModuleNames(data) {
     modulenames = data;
@@ -135,7 +110,7 @@ function activitiesModule(data, today) {
     return body;
 }
 
-//TODO: Implement roomModule
+//TODO: Implement URLs to rooms.
 function roomsModule(data) {
     var body = document.createElement("ul");
 
@@ -201,11 +176,16 @@ function populateModule(modulePos, data) {
     divHeader.appendChild(header);
 }
 
+//Defining wich request to implement csrf-token on.
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
+//Function to update or generate modules.
+//modulePos = int
+//module = modulename.pk
+//update = true / false
 function updateModule(modulePos, module, update) {
     var csrftoken = getCookie('csrftoken');
 
@@ -234,4 +214,29 @@ function updateModule(modulePos, module, update) {
     req.done(function(data) {
         populateModule(modulePos, data);
     });
+}
+
+
+// Cookie functions not currently in use. Grabbing from db instead.
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length,c.length);
+        }
+    }
+    return "";
 }
