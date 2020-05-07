@@ -1,16 +1,16 @@
 ''' Define forms for the application here. '''
-from django.forms import ModelForm, Select, HiddenInput
+from django.forms import ModelForm, Select, HiddenInput, Form, ChoiceField
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import Room, Coordinates, CustomUser, HomeModuleNames
 
-class HomeModelNamesForm:
+class HomeModelNamesForm(Form):
+    ''' docstring '''
+    module = ChoiceField(choices=[])
 
-    class Meta:
-        model = HomeModuleNames
-        fields = '__all__'
-        widgets = {
-            'name' : Select(attrs={"onChange" : 'modelChanged(this)'}) 
-        }
+    def __init__(self, *args, **kwargs):
+        modules = kwargs.pop('modules')
+        super(HomeModelNamesForm, self).__init__(*args, **kwargs)
+        self.fields['module'].choices = modules
 
 class CustomUserCreationForm(UserCreationForm):
     ''' Custom form for creating users. Required when implementing CustomUser model '''

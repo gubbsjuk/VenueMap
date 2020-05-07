@@ -8,11 +8,9 @@
 		"python.linting.pylintArgs": [
 			"--load-plugins=pylint_django"
 		],
-		"todo.embedded.provider": "javascript"
+		"todo.embedded.provider": "ag"
 	},
 	"todo.embedded.exclude": [
-		"/venv/**/*.py",
-		"venv/**/*.py",
 		"**/.*",
 		"**/.*/**",
 		"**/_output/**",

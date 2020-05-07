@@ -59,6 +59,8 @@ class Room(models.Model):
     venue = models.ForeignKey('Venue', on_delete=models.CASCADE)
     shape = models.ForeignKey('Shape', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
 class Shape(models.Model):
     ''' Docstring, slutter du å mase nå? '''
     shape = models.CharField(max_length=10)

@@ -7,65 +7,113 @@ from django.forms import formset_factory
 from django.views import View
 from django.utils import timezone
 from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules
-from .forms import CreateRoomForm, CreateCoordinatesForm
+from .forms import CreateRoomForm, CreateCoordinatesForm, HomeModelNamesForm
+import json
 
 # Create your views here.
 def home_view(request):
     ''' base/start page view '''
-
+    homemodulenames = HomeModuleNames.objects.all().values_list('id', 'name') # Can this be deleted?
+    modulenames = json.dumps(list(homemodulenames))
     if request.method == 'GET':
-        if request.GET.__contains__('modulePos'):
-            result = int(request.GET.__getitem__('modulePos'))
-            modules = HomeModules.objects.get(user_id=request.user)
-            print(result)
-            print(modules.module2)
-            if result == 1:
-                print("in result == 1")
-                data = return_module(request, str(modules.module1))
-                return JsonResponse(data, safe=False)
-            if result == 2:
-                data = return_module(request, str(modules.module2))
-                return JsonResponse(data, safe=False)
+        if request.user.is_authenticated:
+            if request.GET.__contains__('modulePos'):
+                result = int(request.GET.__getitem__('modulePos'))
+                modules = HomeModules.objects.get(user_id=request.user)
 
-        homemodulenames = HomeModuleNames.objects.all()
-        context = {
-            'homemodulenames' : homemodulenames
-        }
+                #OPTIMIZE: IFs / Safe=False
+                #Erstatt IF statements med noe annet?
+                #Forsk på safe=False, hvorfor måtte jeg det? Kan jeg optimalisere for å få det bort?
+                if result in range(1, 5):
+                    if result == 1:
+                        data = return_module(request, modules.module1)
+                    if result == 2:
+                        data = return_module(request, modules.module2)
+                    if result == 3:
+                        data = return_module(request, modules.module3)
+                    if result == 4:
+                        data = return_module(request, modules.module4)
+                    if result == 5:
+                        data = return_module(request, modules.module5)
+                    print(data)
+                    return JsonResponse(data, safe=False)
 
-    return render(request, 'home.html', context)
+            homemoduleform = HomeModelNamesForm(modules=homemodulenames)
+            context = {
+                'homemodulenames' : modulenames,
+                'homemoduleform' : homemoduleform
+            }
+            return render(request, 'home.html', context)
+        return render(request, 'home.html', {'homemodulenames' : modulenames})
+
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            if request.POST.__contains__('modulePos'):
+                modulepos = int(request.POST.__getitem__('modulePos'))
+                modulePK = int(request.POST.__getitem__('module'))
+                modules = HomeModules.objects.get(user_id=request.user)
+                # TODO: Fill in rest of modulepositions
+                # Better way to do this?
+                selectedmodule = HomeModuleNames.objects.get(pk=modulePK)
+                if modulepos == 1:
+                    modules.module1 = selectedmodule
+                if modulepos == 2:
+                    modules.module2 = selectedmodule
+                if modulepos == 3:
+                    modules.module3 = selectedmodule
+                if modulepos == 4:
+                    modules.module4 = selectedmodule
+                if modulepos == 5:
+                    modules.module5 = selectedmodule
+                modules.save()
+
+                data = return_module(request, selectedmodule)
+
+                return JsonResponse(data, safe=False)
 
 def return_module(request, module):
-    print("in return function")
     data = []
-    d = {'header' : module}
+    d = {'header' : module.pk}
     data.append(d)
 
-    if module == 'venue':
-        print("module is venue!")
-        venues = filter_venues_by_user(request)
-        for venue in venues:
-            jsonobj = {'name' : venue.name,
-                       'pk' : venue.pk}
-            data.append(jsonobj)
-        return data
-    if module == 'today':
-        print("module is today!")
-        today = filter_activities_by_user(request)
-        today = today.filter(
-            startdate__gte=timezone.now().replace(hour=0, minute=0, second=0),
-            enddate__lte=timezone.now().replace(hour=23, minute=59, second=59))[:5]
-        for act in today:
-            jsonobj = {'name'   : act.name,
-                       'start'  : act.startdate,
-                       'end'    : act.enddate,
-                       'room'   : act.room.name,
-                       'pk'     : act.pk}
-            data.append(jsonobj)
-        return data
+    if module.name:
+        if module.name == 'venue':
+            venues = filter_venues_by_user(request)
+            for venue in venues:
+                jsonobj = {'name' : venue.name,
+                           'pk' : venue.pk}
+                data.append(jsonobj)
 
+        if module.name == 'today' or module.name == 'activities':
+            print("in today or activities")
+            activities = filter_activities_by_user(request)
+            if module.name == 'today':
+                activities = activities.filter(
+                    startdate__gte=timezone.now().replace(hour=0, minute=0, second=0),
+                    enddate__lte=timezone.now().replace(hour=23, minute=59, second=59))[:5]
+            for act in activities:
+                jsonobj = {'name'   : act.name,
+                        'start'  : act.startdate,
+                        'end'    : act.enddate,
+                        'room'   : act.room.name,
+                        'pk'     : act.pk}
+                data.append(jsonobj)
+
+        if module.name == 'rooms':
+            rooms = filter_rooms_by_user(request)
+            for room in rooms:
+                jsonobj = {
+                    'name' : room.name,
+                    'roomtype' : room.roomtype.name,
+                    'venue' : room.venue.name,
+                    'pk' : room.pk
+                }
+                data.append(jsonobj)
+        return data
 
 def filter_activities_by_user(request):
     rooms = filter_rooms_by_user(request)
+    print(rooms)
     activities = Activities.objects.filter(room__in=rooms)
 
     return activities
@@ -84,8 +132,9 @@ def filter_venues_by_user(request):
     return venue
 
 def filter_rooms_by_user(request):
-    venues = filter_venues_by_user(request)
-    rooms = Room.objects.filter(venue__in=venues)
+    if not request.user.is_anonymous:
+        venues = filter_venues_by_user(request)
+        rooms = Room.objects.filter(venue__in=venues)
 
     return rooms
 
@@ -162,12 +211,10 @@ def room_create_coordinates_view(request):
     if request.method == 'GET':
         search_value = request.GET.get("shape", None)
 
-        print("Search value:" + search_value)
         if search_value:
-            ##IMPLEMENT MORE SHAPES HERE
+            #TODO: IMPLEMENT MORE SHAPES HERE
             if search_value == 'rect':
                 max_coords = 4
-                print("Setting maxforms to: " + str(max_coords))
 
             CoordinatesFormSet = formset_factory(CreateCoordinatesForm, extra=max_coords)
             formset = CoordinatesFormSet()
