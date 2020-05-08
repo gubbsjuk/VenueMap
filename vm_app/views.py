@@ -1,16 +1,117 @@
 ''' Define views attached to templates here. '''
+import json
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.forms import formset_factory
-from .models import Venue, Room, Coordinates, Activities
-from .forms import CreateRoomForm, CreateCoordinatesForm
+from django.utils import timezone
+from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules
+from .forms import CreateRoomForm, CreateCoordinatesForm, HomeModelNamesForm, ActivityForm
+
 
 # Create your views here.
 def home_view(request):
     ''' base/start page view '''
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            homemodulenames = HomeModuleNames.objects.all().values_list('id', 'name') # Can this be deleted?
+            modulenames = json.dumps(list(homemodulenames))
+            homemoduleform = HomeModelNamesForm(modules=homemodulenames)
+            context = {
+                'homemodulenames' : modulenames,
+                'homemoduleform' : homemoduleform
+            }
 
-    return render(request, 'home.html', {})
+            return render(request, 'home.html', context)
+        return render(request, 'home.html', {})
+    
+    #OPTIMIZE: IFs / Safe=False
+    #Erstatt IF statements med noe annet?
+    #Forsk på safe=False, hvorfor måtte jeg det? Kan jeg optimalisere for å få det bort?
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            if request.POST.__contains__('modulePos'):
+                modulepos = int(request.POST.__getitem__('modulePos'))
+                modules = HomeModules.objects.get(user_id=request.user)
+                # TODO: Fill in rest of modulepositions
+                # Better way to do this?
+                if request.POST.__getitem__('update') == "true":
+                    module_pk = int(request.POST.__getitem__('module'))
+                    selectedmodule = HomeModuleNames.objects.get(pk=module_pk)
+                    if modulepos == 1:
+                        modules.module1 = selectedmodule
+                    if modulepos == 2:
+                        modules.module2 = selectedmodule
+                    if modulepos == 3:
+                        modules.module3 = selectedmodule
+                    if modulepos == 4:
+                        modules.module4 = selectedmodule
+                    if modulepos == 5:
+                        modules.module5 = selectedmodule
+                    modules.save()
+                    data = return_module(request, selectedmodule)
+                elif request.POST.__getitem__('update') == "false":
+                    if modulepos == 1:
+                        data = return_module(request, modules.module1)
+                    if modulepos == 2:
+                        data = return_module(request, modules.module2)
+                    if modulepos == 3:
+                        data = return_module(request, modules.module3)
+                    if modulepos == 4:
+                        data = return_module(request, modules.module4)
+                    if modulepos == 5:
+                        data = return_module(request, modules.module5)
+                return JsonResponse(data, safe=False)
+
+def return_module(request, module):
+    data = []
+    header = {'header' : module.pk}
+    data.append(header)
+
+    if module.name:
+        if module.name == 'venue':
+            venues = filter_venues_by_user(request)
+            for venue in venues:
+                jsonobj = {'name' : venue.name,
+                           'pk' : venue.pk}
+                data.append(jsonobj)
+
+        if module.name == 'today' or module.name == 'activities':
+            activities = filter_activities_by_user(request)
+            if module.name == 'today':
+                print("in today")
+                activities = activities.filter(
+                    startdate__gte=timezone.now().replace(hour=0, minute=0, second=0),
+                    enddate__lte=timezone.now().replace(hour=23, minute=59, second=59))[:5]
+                print (activities)
+            for act in activities:
+                jsonobj = {
+                    'name'   : act.name,
+                    'start'  : act.startdate,
+                    'end'    : act.enddate,
+                    'room'   : act.room.name,
+                    'pk'     : act.pk
+                    }
+                data.append(jsonobj)
+
+        if module.name == 'rooms':
+            rooms = filter_rooms_by_user(request)
+            for room in rooms:
+                jsonobj = {
+                    'name' : room.name,
+                    'roomtype' : room.roomtype.name,
+                    'venue' : room.venue.name,
+                    'pk' : room.pk
+                }
+                data.append(jsonobj)
+        return data
+
+def filter_activities_by_user(request):
+    rooms = filter_rooms_by_user(request)
+    print(rooms)
+    activities = Activities.objects.filter(room__in=rooms)
+
+    return activities
 
 def filter_venues_by_usergroup(request):
     ''' Utilitary function to filter Venues by their assigned client. '''
@@ -18,15 +119,24 @@ def filter_venues_by_usergroup(request):
     return Venue.objects.filter(client__in=current_usergroups)
 
 def filter_venues_by_user(request):
-    ''' Utilitart function to filter Venues by user permitted to view.
+    ''' Utilitary function to filter Venues by user permitted to view.
         Currently not implemented and returns Venue.objects.get() '''
-    venue = Venue.objects.get()
+    user = request.user
+    venue = Venue.objects.filter(customuser=user)
+
     return venue
+
+def filter_rooms_by_user(request):
+    if not request.user.is_anonymous:
+        venues = filter_venues_by_user(request)
+        rooms = Room.objects.filter(venue__in=venues)
+
+    return rooms
 
 def venues_view(request):
     ''' View that returns venues filtered by client.
         Context: 'venues' : venue '''
-    venue = filter_venues_by_usergroup(request)
+    venue = filter_venues_by_user(request)
     context = {
         "venues" : venue,
     }
@@ -96,12 +206,10 @@ def room_create_coordinates_view(request):
     if request.method == 'GET':
         search_value = request.GET.get("shape", None)
 
-        print("Search value:" + search_value)
         if search_value:
-            ##IMPLEMENT MORE SHAPES HERE
+            #TODO: IMPLEMENT MORE SHAPES HERE
             if search_value == 'rect':
                 max_coords = 4
-                print("Setting maxforms to: " + str(max_coords))
 
             CoordinatesFormSet = formset_factory(CreateCoordinatesForm, extra=max_coords)
             formset = CoordinatesFormSet()
@@ -147,3 +255,26 @@ def room_list_view(request):
             'venues' : venues,
         }
         return render(request, 'room/room_list.html', context)
+
+def activities_view(request, **kwargs):
+    maxact = kwargs.pop('max')
+    rooms = filter_rooms_by_user(request)
+    if maxact:
+        activities = Activities.objects.filter(room__in=rooms)[:maxact]
+
+    activities = Activities.objects.filter(room__in=rooms)
+    context = {
+        'activities' : activities
+    }
+
+    return render(request, 'activities_list.html', context)
+
+def activity_create_view(request):
+    if request.method == 'POST':
+        form = ActivityForm(request.POST)
+        print(form.errors)
+        if form.is_valid():
+            savedmodel = form.save()
+            return HttpResponse(savedmodel.pk)
+    form = ActivityForm()
+    return render(request, 'activity_create.html', {'form' : form})

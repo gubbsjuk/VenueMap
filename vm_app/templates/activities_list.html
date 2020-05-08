@@ -1,0 +1,7 @@
+    <h1>Venues</h1>
+    <ul>        {% for activity in activites %}
+        <li>
+            <a href="{% url 'imgmap_view' activity.pk %}"> {{ activity.name }} </a>
+        </li>
+        {% endfor %}
+    </ul>

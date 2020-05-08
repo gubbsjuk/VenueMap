@@ -1,11 +1,38 @@
 {% extends 'base.html' %}
 {% block page_content %}
-    <div id="Venues">
-        {% include 'venues.html' %}
-    </div>
+{% load static %}
 
-    <div id="RecentActivites">
-        
+<div class="container">
+    {% if user.is_authenticated %}
+    <div class="card-deck">
+        <div class="card rounded shadow" id="module1">
+            <div class="card-header" id="module1-header">
+                <form action="/home/" method="POST" class="float-right">
+                    {% csrf_token %}
+                    {{homemoduleform}}
+                </form>
+                <!--Rest of the code is created in JS *facepalm*-->
+            </div>
+            <div class="card-body" id="module1-body">
+                <!--Rest of the code is created in JS *facepalm*-->
+            </div>
+        </div>
+        <div class="card rounded shadow" id="module2">
+            <div class="card-header" id="module2-header">
+                <!--Rest of the code is created in JS *facepalm*-->
+            </div>
+            <div class="card-body" id="module2-body">
+                <!--Rest of the code is created in JS *facepalm*-->
+            </div>
+        </div>
     </div>
+    {% endif %}
+</div>
+<script src="{% static 'home.js' %}">
+</script>
+<script>
+    var modulenames = {{ homemodulenames|safe }};
+</script>
+
 
 {% endblock %}

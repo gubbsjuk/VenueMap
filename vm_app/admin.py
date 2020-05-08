@@ -1,7 +1,7 @@
 ''' Admin module features added here.. '''
 from django.contrib             import admin
 from django.contrib.auth.admin  import UserAdmin
-from .models                    import Venue, Room, RoomType, Shape, Coordinates, Activities, CustomUser
+from .models                    import Venue, Room, RoomType, Shape, Coordinates, Activities, CustomUser, HomeModuleNames, HomeModules
 from .forms                     import CustomUserChangeForm, CustomUserCreationForm
 
 class CustomUserAdmin(UserAdmin):
@@ -48,6 +48,8 @@ class ActivityAdmin(admin.ModelAdmin):
     ''' Admin module for Activity model '''
     pass
 
+class HomeModuleNamesAdmin(admin.ModelAdmin):
+    readonly_fields=('id',)
 
 # Register your models here.
 admin.site.register(CustomUser, CustomUserAdmin)
@@ -57,3 +59,5 @@ admin.site.register(RoomType, RoomTypeAdmin)
 admin.site.register(Shape, ShapeAdmin)
 admin.site.register(Coordinates, CoordinatesAdmin)
 admin.site.register(Activities, ActivityAdmin)
+admin.site.register(HomeModuleNames, HomeModuleNamesAdmin)
+admin.site.register(HomeModules)
