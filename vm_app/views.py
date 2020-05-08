@@ -77,12 +77,13 @@ def return_module(request, module):
                 data.append(jsonobj)
 
         if module.name == 'today' or module.name == 'activities':
-            print("in today or activities")
             activities = filter_activities_by_user(request)
             if module.name == 'today':
+                print("in today")
                 activities = activities.filter(
                     startdate__gte=timezone.now().replace(hour=0, minute=0, second=0),
                     enddate__lte=timezone.now().replace(hour=23, minute=59, second=59))[:5]
+                print (activities)
             for act in activities:
                 jsonobj = {
                     'name'   : act.name,

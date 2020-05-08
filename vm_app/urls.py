@@ -11,5 +11,5 @@ urlpatterns = [
     path('room_create_coordinates/', views.room_create_coordinates_view, name='room_create_coordinates'),
     path('room_manage/', views.room_manage_view, name='room_manage_view'),
     path('room_list/', views.room_list_view, name='room_list_view'),
-    path('activity_create/', views.activity_create_view, name='acitivy_create_view'),
+    path('activity_create/', views.activity_create_view, name='activity_create_view'),
 ]
