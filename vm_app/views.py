@@ -172,11 +172,29 @@ def room_detail(request):
 
     return render(request, 'room_detail.html', {})
 
+def new_room_create_view(request):
+    if request.method == 'GET':
+        form = CreateRoomForm()
+        venues = filter_venues_by_user(request)
+        form.fields['venue'].queryset = venues
+        context = {
+            'form' : form,
+            'venues' : venues
+        }
+        return render(request, 'room/room_create.html', context)
+    
+    if request.method == 'POST':
+        form = CreateRoomForm(request.POST)
+        if form.is_valid():
+            savedmodel = form.save()
+            return HttpResponse(savedmodel.pk)    
+
 def room_create_view(request):
     ''' View for creating a new room.
         Valid post method returns HttpResponse with primary-key of the room '''
 
     if request.method == 'POST':
+        print(request.POST.get)
         form = CreateRoomForm(request.POST)
         print(form.errors)
         if form.is_valid():
@@ -189,9 +207,9 @@ def room_create_view(request):
         }
         return render(request, 'room/room_create.html', context)
 
-    #if not POST, create the form. Filter venues by venues belonging to the client.
+    #if not POST, create the form. Filter venues by venues belonging to the user.
     form = CreateRoomForm()
-    form.fields['venue'].queryset = filter_venues_by_usergroup(request)
+    form.fields['venue'].queryset = filter_venues_by_user(request)
     context = {
         'form' : form,
     }

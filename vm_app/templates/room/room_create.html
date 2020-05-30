@@ -1,23 +1,141 @@
 {% extends "base.html" %}
 {% load static %}
 {% block page_content %}
-<h1>Create new room</h1>
 
-<form action="/room_create/" method="POST" id="roomForm">
-    {% csrf_token %}
-    <table>
-        {{ form.as_table }}
-    </table>
-</form>
-<p>Coordinates:</p>
-<form action="/room_create_coordinates/" method="POST" id="coordForm">
-    {% csrf_token %}
-    {% include 'room/room_create_coordinates.html' %}
-</form>
-<input type="Button" value="Submit" id="btnSubmit" onclick="submitForms()">
+<div class="container-fluid">
+    <h1>Create new room</h1>
+    <div class="row">
+        <div class="col-sm">
+            <form action="/room_create/" method="POST" id="roomForm">
+                {% csrf_token %}
+                <table>
+                    {{ form.as_table }}
+                </table>
+            </form>
+            <p>Coordinates:</p>
+            <form action="/room_create_coordinates/" method="POST" id="coordForm">
+                {% csrf_token %}
+                {% include 'room/room_create_coordinates.html' %}
+            </form>
+            <input type="Button" value="Submit" id="btnSubmit" onclick="submitForms()">
+        </div>
+    
+        <div class="col-sm">
+            <canvas id="venueImgCanvas">
+    
+            </canvas>
+        </div>
+    </div>
+</div>
+
 <script>
+    var canvas = document.getElementById("venueImgCanvas");
+    var ctx= canvas.getContext("2d");
+    ctx.lineWidth = 2;
+
+    var canvasOffset = $("#venueImgCanvas").offset();
+    var offsetX = canvasOffset.left;
+    var offsetY = canvasOffset.top;
+
+    var img = new Image();
+    img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+    }
+
+    var startpoint, point2, timeout;
+    var pressed = false;
+
+    $("#venueImgCanvas").mousedown(function (e){
+        console.log("MOUSEDOWN");
+        startpoint = getCursorLoc(e);
+        point2 = getCursorLoc(e);
+        var shapeSelect = document.getElementById("id_shape");
+        var shape = shapeSelect.options[shapeSelect.selectedIndex].value;
+        
+        if (shape) {
+            timeout = setInterval(function(){
+            pressed = true;
+            console.log(startpoint);
+            console.log(point2);
+            if (point2 != null){
+                if (shape = 1) {
+                    popCoords(startpoint[0], startpoint[1], point2[0], point2[1]);
+                    drawRect(startpoint, point2[0] - startpoint[0], point2[1] - startpoint[1]);
+                }
+            }
+            console.log("interval");
+            }, 100);
+        }
+        return false;
+    });
+
+    $("#venueImgCanvas").mouseup(function (e){
+        console.log("mouseup");
+        console.log(timeout);
+        if (timeout != null) {
+            clearInterval(timeout);
+        }
+        return false;
+    });
+
+    $("#venueImgCanvas").mouseout(function() {
+        if (timeout != null) {
+            clearInterval(timeout);
+        }
+        return false;
+    });
+
+    $("#venueImgCanvas").mousemove(function (e){
+        if (pressed) {
+            point2 = getCursorLoc(e);
+        }
+    });
+
+    function drawRect(point1, width, height) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        ctx.beginPath();
+        ctx.rect(point1[0], point1[1], width, height);
+        ctx.stroke();
+    }
+
+    function changeImage(select) {
+        {% for venue in venues %}
+        var pk = {{ venue.pk }}
+            if (pk == select.options[select.selectedIndex].value) {
+                img.src = "{{ venue.arenalayout.url }}";
+            }
+        {% endfor %}
+    }
+
+    function getCursorLoc(e) {
+        mouseX = parseInt(e.clientX - offsetX);
+        mouseY = parseInt(e.clientY - offsetY);
+
+        return [mouseX, mouseY];
+    }
+
     function submitForms() {
         document.getElementById("roomForm").submit()
+    }
+
+    function popCoords(x1, y1, x2, y2) {
+        console.log("popcords");
+        shapeSelect = document.getElementById("id_shape");
+        shape = shapeSelect.options[shapeSelect.selectedIndex].value;
+
+        coords = [x1,y1,x2,y2];
+        if (shape = 1) {
+            var toUpdate = document.querySelectorAll('input[id^="id_form"][id$="coordinate"]');
+
+            var i = 0;
+            for (x of toUpdate) {
+                x.value = coords[i];
+                i++;
+            }
+        }
     }
 </script>
 
