@@ -19,3 +19,5 @@ Todo:
     ☐ https://medium.com/agatha-codes/options-objects-customizing-the-django-user-model-6d42b3e971a4
     ☐ https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
     ☐ https://learndjango.com/tutorials/django-custom-user-model
+
+  ☐ Consider using JSON and AJAX to generate Home Page and modules fully. Might need two responses (HTTP & JSON) from Server.

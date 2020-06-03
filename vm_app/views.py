@@ -23,7 +23,9 @@ def home_view(request):
             }
 
             return render(request, 'home.html', context)
-        return render(request, 'home.html', {})
+            
+        #Return login form if not logged in.
+        return HttpResponseRedirect(reverse('login'))
     
     #OPTIMIZE: IFs / Safe=False
     #Erstatt IF statements med noe annet?
