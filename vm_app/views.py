@@ -333,16 +333,23 @@ def profile_update_view(request):
             'last_name': request.user.last_name,
             'email': request.user.email,
         }
+
+        initial_data_profile = {
+            'phone_number' : request.user.profile.phone_number,
+        }
+        
         user_form = UserForm(initial=initial_data_user)
-        profile_form = ProfileForm()
+        profile_form = ProfileForm(initial=initial_data_profile)
 
     if request.method == "POST":
         instance = request.user
         user_form = UserForm(request.POST, instance=instance)
-        profile_form = ProfileForm()
-        if user_form.is_valid():
+        profile_form = ProfileForm(request.POST, instance=instance.profile)
+        print(request.POST)
+        if user_form.is_valid() and profile_form.is_valid:
             user_form.save()
-
+            print(instance.profile)
+            profile_form.save()
 
     context = {
         'userForm' : user_form,

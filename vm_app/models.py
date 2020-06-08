@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.contrib.auth.models import Group, User
 from django.dispatch import receiver
+from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
 
@@ -51,6 +52,7 @@ class Venue(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     venues = models.ManyToManyField(Venue)
+    phone_number = PhoneNumberField(blank=True, null=True, unique=True)
 
 class RoomType(models.Model):
     ''' Docstring, slutter du å mase nå? '''

@@ -42,6 +42,9 @@ AUTH_PROFILE_MODULE = 'vm_app.Profile'
 TEMPUS_DOMINUS_LOCALIZE = False # Default false.
 TEMPUS_DOMINUS_INCLUDE_ASSETS = True # Default true, loads Tempus Dominus and moment JS and CSS from cloudfare CDN.
 
+# PHONENUMBER SETTINGS
+PHONENUMBER_DB_FORMAT = 'E164'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -54,6 +57,7 @@ INSTALLED_APPS = [
     'vm_app',
     'debug_toolbar',
     'tempus_dominus',
+    'phonenumber_field',
 ]
 
 MIDDLEWARE = [

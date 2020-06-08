@@ -75,7 +75,7 @@ class ProfileForm(ModelForm):
 
     class Meta:
         model = Profile
-        fields = '__all__'
+        fields = {'phone_number',}
 
 class UserForm(ModelForm):
 
