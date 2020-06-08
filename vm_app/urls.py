@@ -12,4 +12,5 @@ urlpatterns = [
     path('room_manage/', views.room_manage_view, name='room_manage_view'),
     path('room_list/', views.room_list_view, name='room_list_view'),
     path('activity_create/', views.activity_create_view, name='activity_create_view'),
+    path('profile/', views.profile_update_view, name='profile_update_view'),
 ]

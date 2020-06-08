@@ -35,7 +35,8 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-AUTH_USER_MODEL = 'vm_app.CustomUser'
+# AUTH_USER_MODEL = 'vm_app.CustomUser'
+AUTH_PROFILE_MODULE = 'vm_app.Profile'
 
 # TEMPUS DOMINUS SETTINGS
 TEMPUS_DOMINUS_LOCALIZE = False # Default false.

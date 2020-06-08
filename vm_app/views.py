@@ -5,8 +5,12 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.forms import formset_factory
 from django.utils import timezone
-from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules
-from .forms import CreateRoomForm, CreateCoordinatesForm, HomeModelNamesForm, ActivityForm
+from django.contrib.auth.decorators import login_required
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic import UpdateView
+from django.utils.decorators import method_decorator
+from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules, Profile
+from .forms import CreateRoomForm, CreateCoordinatesForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm
 
 
 # Create your views here.
@@ -14,7 +18,9 @@ def home_view(request):
     ''' base/start page view '''
     if request.method == 'GET':
         if request.user.is_authenticated:
-            homemodulenames = HomeModuleNames.objects.all().values_list('id', 'name') # Can this be deleted?
+            #OPTIMIZE: Can this be deleted?
+            homemodulenames = HomeModuleNames.objects.all().values_list('id', 'name')
+            #
             modulenames = json.dumps(list(homemodulenames))
             homemoduleform = HomeModelNamesForm(modules=homemodulenames)
             context = {
@@ -23,10 +29,10 @@ def home_view(request):
             }
 
             return render(request, 'home.html', context)
-            
+
         #Return login form if not logged in.
         return HttpResponseRedirect(reverse('login'))
-    
+
     #OPTIMIZE: IFs / Safe=False
     #Erstatt IF statements med noe annet?
     #Forsk på safe=False, hvorfor måtte jeg det? Kan jeg optimalisere for å få det bort?
@@ -66,6 +72,10 @@ def home_view(request):
                 return JsonResponse(data, safe=False)
 
 def return_module(request, module):
+    '''
+    Returns jsonobj. with the corresponding data according to the requested module.
+    '''
+
     data = []
     header = {'header' : module.pk}
     data.append(header)
@@ -85,7 +95,7 @@ def return_module(request, module):
                 activities = activities.filter(
                     startdate__gte=timezone.now().replace(hour=0, minute=0, second=0),
                     enddate__lte=timezone.now().replace(hour=23, minute=59, second=59))[:5]
-                print (activities)
+                print(activities)
             for act in activities:
                 jsonobj = {
                     'name'   : act.name,
@@ -109,6 +119,10 @@ def return_module(request, module):
         return data
 
 def filter_activities_by_user(request):
+    '''
+    Filter activities to activities in rooms the user has access to.
+    '''
+
     rooms = filter_rooms_by_user(request)
     print(rooms)
     activities = Activities.objects.filter(room__in=rooms)
@@ -123,12 +137,14 @@ def filter_venues_by_usergroup(request):
 def filter_venues_by_user(request):
     ''' Utilitary function to filter Venues by user permitted to view.
         Currently not implemented and returns Venue.objects.get() '''
-    user = request.user
-    venue = Venue.objects.filter(customuser=user)
-
+    venue = request.user.profile.venues.all()
     return venue
 
 def filter_rooms_by_user(request):
+    '''
+    Filter rooms to rooms in venues the user has access to.
+    '''
+
     if not request.user.is_anonymous:
         venues = filter_venues_by_user(request)
         rooms = Room.objects.filter(venue__in=venues)
@@ -175,6 +191,10 @@ def room_detail(request):
     return render(request, 'room_detail.html', {})
 
 def new_room_create_view(request):
+    '''
+    rewrite of room_create_view
+    TODO: write better docstring and remove old room_create_view
+    '''
     if request.method == 'GET':
         form = CreateRoomForm()
         venues = filter_venues_by_user(request)
@@ -184,12 +204,12 @@ def new_room_create_view(request):
             'venues' : venues
         }
         return render(request, 'room/room_create.html', context)
-    
+
     if request.method == 'POST':
         form = CreateRoomForm(request.POST)
         if form.is_valid():
             savedmodel = form.save()
-            return HttpResponse(savedmodel.pk)    
+            return HttpResponse(savedmodel.pk)
 
 def room_create_view(request):
     ''' View for creating a new room.
@@ -277,6 +297,10 @@ def room_list_view(request):
         return render(request, 'room/room_list.html', context)
 
 def activities_view(request, **kwargs):
+    '''
+    View of activitylist. returns populated activity_list.html.
+    Requires kwargs "max" for max activites.
+    '''
     maxact = kwargs.pop('max')
     rooms = filter_rooms_by_user(request)
     if maxact:
@@ -290,6 +314,10 @@ def activities_view(request, **kwargs):
     return render(request, 'activities_list.html', context)
 
 def activity_create_view(request):
+    '''
+    View for creating new activities. Returns activity_create.html with a form named "form"
+    '''
+
     if request.method == 'POST':
         form = ActivityForm(request.POST)
         print(form.errors)
@@ -298,3 +326,31 @@ def activity_create_view(request):
             return HttpResponse(savedmodel.pk)
     form = ActivityForm()
     return render(request, 'activity_create.html', {'form' : form})
+
+def profile_update_view(request):
+
+    #TODO: Filter out changed data and only update that.
+    if request.method == "GET":
+        initial_data_user = {
+            'username': request.user.username,
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'email': request.user.email,
+        }
+        userForm = UserForm(initial=initial_data_user)
+        profileForm = ProfileForm()
+    
+    if request.method == "POST":
+        instance = request.user
+        userForm = UserForm(request.POST, instance=instance)
+        profileForm = ProfileForm()
+        if userForm.is_valid():
+            userForm.save()
+                    
+
+    context = {
+        'userForm' : userForm,
+        'profileForm' : profileForm
+    }
+
+    return render(request, 'profile_form.html', context)

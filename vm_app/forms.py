@@ -1,7 +1,9 @@
 ''' Define forms for the application here. '''
 from django.forms import ModelForm, Select, HiddenInput, Form, ChoiceField, DateTimeInput, widgets, Media
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import Room, Coordinates, CustomUser, Activities
+from django.contrib.auth.models import User
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from .models import Room, Coordinates, Activities, Profile
 from tempus_dominus.widgets import DateTimePicker, DatePicker, TimePicker
 
 # TODO: FIX THIS.....
@@ -51,20 +53,6 @@ class HomeModelNamesForm(Form):
         super(HomeModelNamesForm, self).__init__(*args, **kwargs)
         self.fields['module'].choices = modules
 
-class CustomUserCreationForm(UserCreationForm):
-    ''' Custom form for creating users. Required when implementing CustomUser model '''
-
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'email')
-
-class CustomUserChangeForm(UserChangeForm):
-    ''' Custom form for changeing users. Required when implementing CustomUser model '''
-
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'email')
-
 class CreateRoomForm(ModelForm):
     ''' Form for creating rooms. Implementing onChange listener on shape-input. '''
     class Meta:
@@ -83,3 +71,15 @@ class CreateCoordinatesForm(ModelForm):
         widgets = {
             'room' : HiddenInput()
         }
+
+class ProfileForm(ModelForm):
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+class UserForm(ModelForm):
+
+    class Meta:
+        model = User
+        fields = {'username', 'first_name', 'last_name', 'email'}
