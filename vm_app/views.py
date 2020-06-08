@@ -5,11 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.forms import formset_factory
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import UpdateView
-from django.utils.decorators import method_decorator
-from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules, Profile
+from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules
 from .forms import CreateRoomForm, CreateCoordinatesForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm
 
 
@@ -337,20 +333,20 @@ def profile_update_view(request):
             'last_name': request.user.last_name,
             'email': request.user.email,
         }
-        userForm = UserForm(initial=initial_data_user)
-        profileForm = ProfileForm()
-    
+        user_form = UserForm(initial=initial_data_user)
+        profile_form = ProfileForm()
+
     if request.method == "POST":
         instance = request.user
-        userForm = UserForm(request.POST, instance=instance)
-        profileForm = ProfileForm()
-        if userForm.is_valid():
-            userForm.save()
-                    
+        user_form = UserForm(request.POST, instance=instance)
+        profile_form = ProfileForm()
+        if user_form.is_valid():
+            user_form.save()
+
 
     context = {
-        'userForm' : userForm,
-        'profileForm' : profileForm
+        'userForm' : user_form,
+        'profileForm' : profile_form
     }
 
     return render(request, 'profile_form.html', context)

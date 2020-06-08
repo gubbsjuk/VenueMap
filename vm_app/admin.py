@@ -28,7 +28,7 @@ class ActivityAdmin(admin.ModelAdmin):
     pass
 
 class HomeModuleNamesAdmin(admin.ModelAdmin):
-    readonly_fields=('id',)
+    readonly_fields = ('id',)
 
 class ProfileAdmin(admin.ModelAdmin):
     ''' Admin module for Profile model '''
