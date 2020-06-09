@@ -1,8 +1,8 @@
-from vm_app.models import Venue
+from vm_app.models import Venue, Profile
 
 def venues(request):
     user = request.user
     if user.is_authenticated:
-        venue = Venue.objects.filter(customuser=user)[:3]
+        venue = request.user.profile.venues.all()
         return {'sidebar_venues' : venue}
     return {'sidebar_venues' : ()}

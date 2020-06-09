@@ -8,7 +8,12 @@
 		"python.linting.pylintArgs": [
 			"--load-plugins=pylint_django"
 		],
-		"todo.embedded.provider": "ag"
+		"todo.embedded.provider": "ag",
+		"githubPullRequests.remotes": [
+			"origin",
+			"upstream",
+			"Github"
+		]
 	},
 	"todo.embedded.exclude": [
 		"**/.*",

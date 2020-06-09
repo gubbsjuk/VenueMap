@@ -1,8 +1,9 @@
 ''' Define forms for the application here. '''
-from django.forms import ModelForm, Select, HiddenInput, Form, ChoiceField, DateTimeInput, widgets, Media
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import Room, Coordinates, CustomUser, Activities
+from django.forms import ModelForm, Select, HiddenInput, Form, ChoiceField, widgets, Media
+from django.contrib.auth.models import User
 from tempus_dominus.widgets import DateTimePicker, DatePicker, TimePicker
+from .models import Room, Coordinates, Activities, Profile
+
 
 # TODO: FIX THIS.....
 class SplitDateTimeWidget(widgets.MultiWidget):
@@ -18,7 +19,7 @@ class SplitDateTimeWidget(widgets.MultiWidget):
         if value:
             return [value.date(), value.time()]
         return [None, None]
-    
+
     def _media(self):
         print(Media(DatePicker.media))
         return DatePicker.media
@@ -27,7 +28,7 @@ class SplitDateTimeWidget(widgets.MultiWidget):
         """
         Given a list of rendered widgets (as strings), it inserts an HTML
         linebreak between them.
-        
+
         Returns a Unicode string representing the HTML for the whole lot.
         """
         rendered_widgets.insert(-1, '<br/>')
@@ -51,20 +52,6 @@ class HomeModelNamesForm(Form):
         super(HomeModelNamesForm, self).__init__(*args, **kwargs)
         self.fields['module'].choices = modules
 
-class CustomUserCreationForm(UserCreationForm):
-    ''' Custom form for creating users. Required when implementing CustomUser model '''
-
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'email')
-
-class CustomUserChangeForm(UserChangeForm):
-    ''' Custom form for changeing users. Required when implementing CustomUser model '''
-
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'email')
-
 class CreateRoomForm(ModelForm):
     ''' Form for creating rooms. Implementing onChange listener on shape-input. '''
     class Meta:
@@ -83,3 +70,15 @@ class CreateCoordinatesForm(ModelForm):
         widgets = {
             'room' : HiddenInput()
         }
+
+class ProfileForm(ModelForm):
+
+    class Meta:
+        model = Profile
+        fields = {'phone_number',}
+
+class UserForm(ModelForm):
+
+    class Meta:
+        model = User
+        fields = {'username', 'first_name', 'last_name', 'email'}
