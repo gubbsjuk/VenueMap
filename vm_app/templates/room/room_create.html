@@ -9,14 +9,14 @@
             <form action="/room_create/" method="POST" id="roomForm">
                 {% csrf_token %}
                 <table>
-                    {{ form.as_table }}
+                    {{ room_form.as_table }}
+                </table>
+                <p>Coordinates:</p>
+                <table>
+                    {{ coord_form.as_table }}
                 </table>
             </form>
-            <p>Coordinates:</p>
-            <form action="/room_create_coordinates/" method="POST" id="coordForm">
-                {% csrf_token %}
-                {% include 'room/room_create_coordinates.html' %}
-            </form>
+            <!-- TODO: remove button and replace with simple post button. -->
             <input type="Button" value="Submit" id="btnSubmit" onclick="submitForms()">
         </div>
     

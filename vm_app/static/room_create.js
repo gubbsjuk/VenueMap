@@ -2,7 +2,7 @@ function myFunction(sel) {
     text = sel.options[sel.selectedIndex].text;
 
     req = $.ajax({
-        url : '/room_create_coordinates',
+        url : '/room_create',
         type : 'GET',
         data : { shape : text }
     });

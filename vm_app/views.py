@@ -192,20 +192,31 @@ def new_room_create_view(request):
     TODO: write better docstring and remove old room_create_view
     '''
     if request.method == 'GET':
-        form = CreateRoomForm()
+        # Get-request without a shape.
+        room_form = CreateRoomForm()
+        coord_form = CreateCoordinatesForm()
         venues = filter_venues_by_user(request)
-        form.fields['venue'].queryset = venues
+        room_form.fields['venue'].queryset = venues
         context = {
-            'form' : form,
+            'room_form' : room_form,
+            'coord_form': coord_form,
             'venues' : venues
         }
         return render(request, 'room/room_create.html', context)
 
     if request.method == 'POST':
-        form = CreateRoomForm(request.POST)
-        if form.is_valid():
-            savedmodel = form.save()
-            return HttpResponse(savedmodel.pk)
+        room_form = CreateRoomForm(request.POST)
+        # TODO: Write custom validation of the formset
+        # checking if formset is valid except reference to room PK
+        # OPTIMALIZE: Using comma-separated with custom validation to check amount of numbers stops having to use AJAX and a for loop to iterate formset.
+        if room_form.is_valid():
+            savedmodel = room_form.save()
+            coord_form = CreateCoordinatesForm(request.POST)
+
+            coord_form.cleaned_data['room']  = savedmodel.pk
+            if coord_form.is_valid():
+                form.save()
+            return HttpResponseRedirect(reverse('room_manage'))
 
 def room_create_view(request):
     ''' View for creating a new room.
@@ -243,9 +254,7 @@ def room_create_coordinates_view(request):
         search_value = request.GET.get("shape", None)
 
         if search_value:
-            #TODO: IMPLEMENT MORE SHAPES HERE
-            if search_value == 'rect':
-                max_coords = 4
+
 
             CoordinatesFormSet = formset_factory(CreateCoordinatesForm, extra=max_coords)
             formset = CoordinatesFormSet()

@@ -58,7 +58,6 @@ class CreateRoomForm(ModelForm):
         model = Room
         fields = '__all__'
         widgets = {
-            'shape' : Select(attrs={"onChange" : 'myFunction(this);'}),
             'venue' : Select(attrs={"onChange" : 'changeImage(this)'})
         }
 

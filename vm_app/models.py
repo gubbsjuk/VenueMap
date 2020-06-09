@@ -4,6 +4,8 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import Group, User
 from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
+from django.contrib.auth.models import Group, AbstractUser
+from django.core.validators import validate_comma_separated_integer_list, MinLengthValidator, MaxLengthValidator
 
 # Create your models here.
 
@@ -67,7 +69,6 @@ class Room(models.Model):
     name = models.CharField(max_length=20)
     roomtype = models.ForeignKey('RoomType', on_delete=models.CASCADE)
     venue = models.ForeignKey('Venue', on_delete=models.CASCADE)
-    shape = models.ForeignKey('Shape', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -81,8 +82,23 @@ class Shape(models.Model):
 
 class Coordinates(models.Model):
     ''' Docstring, slutter du å mase nå? '''
-    coordinate = models.SmallIntegerField()
+    coordinate = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200)
+    shape = models.CharField(max_length=200)
     room = models.ForeignKey('Room', on_delete=models.CASCADE)
+
+    def clean(self, *args, **kwargs):
+        #add custom validation here
+        #TODO: Could this be done better than CharField? CharField requires validation of input = valid shape.
+        if self.shape.value_to_string() == 'rect':
+            coord_amount = 4
+        if coord_amount:
+            self.coordinate.validators.append(MinLengthValidator(coord_amount))
+            self.coordinate.validators.append(MaxLengthValidator(coord_amount))
+        super(Coordinates, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Coordinates, self).save(*args, **kwargs)
 
 class Activities(models.Model):
     ''' Docstring, slutter du å mase nå? '''
