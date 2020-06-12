@@ -11,16 +11,15 @@
                 <table>
                     {{ room_form.as_table }}
                 </table>
-                <p>Coordinates:</p>
-                <table>
-                    {{ coord_form.as_table }}
-                </table>
             </form>
             <!-- TODO: remove button and replace with simple post button. -->
             <input type="Button" value="Submit" id="btnSubmit" onclick="submitForms()">
         </div>
     
         <div class="col-sm">
+            <div class="row" id="buttonPanel">
+                
+            </div>
             <canvas id="venueImgCanvas">
     
             </canvas>
@@ -48,32 +47,25 @@
     var pressed = false;
 
     $("#venueImgCanvas").mousedown(function (e){
-        console.log("MOUSEDOWN");
         startpoint = getCursorLoc(e);
         point2 = getCursorLoc(e);
-        var shapeSelect = document.getElementById("id_shape");
-        var shape = shapeSelect.options[shapeSelect.selectedIndex].value;
+        var shape = document.getElementById("id_shape").value;
         
         if (shape) {
             timeout = setInterval(function(){
             pressed = true;
-            console.log(startpoint);
-            console.log(point2);
             if (point2 != null){
-                if (shape = 1) {
+                if (shape = 'rect') {
                     popCoords(startpoint[0], startpoint[1], point2[0], point2[1]);
                     drawRect(startpoint, point2[0] - startpoint[0], point2[1] - startpoint[1]);
                 }
             }
-            console.log("interval");
             }, 100);
         }
         return false;
     });
 
     $("#venueImgCanvas").mouseup(function (e){
-        console.log("mouseup");
-        console.log(timeout);
         if (timeout != null) {
             clearInterval(timeout);
         }
@@ -122,20 +114,8 @@
     }
 
     function popCoords(x1, y1, x2, y2) {
-        console.log("popcords");
-        shapeSelect = document.getElementById("id_shape");
-        shape = shapeSelect.options[shapeSelect.selectedIndex].value;
-
-        coords = [x1,y1,x2,y2];
-        if (shape = 1) {
-            var toUpdate = document.querySelectorAll('input[id^="id_form"][id$="coordinate"]');
-
-            var i = 0;
-            for (x of toUpdate) {
-                x.value = coords[i];
-                i++;
-            }
-        }
+        var coordinates = document.getElementById("id_coordinates")
+        coordinates.value = x1 + "," + y1 + "," + x2 + "," + y2;
     }
 </script>
 

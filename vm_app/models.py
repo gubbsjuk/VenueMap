@@ -69,36 +69,11 @@ class Room(models.Model):
     name = models.CharField(max_length=20)
     roomtype = models.ForeignKey('RoomType', on_delete=models.CASCADE)
     venue = models.ForeignKey('Venue', on_delete=models.CASCADE)
+    shape = models.CharField(max_length=10, null=True, blank=True, default="")
+    coordinates = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True, default="")
 
     def __str__(self):
         return self.name
-class Shape(models.Model):
-    ''' Docstring, slutter du å mase nå? '''
-    shape = models.CharField(max_length=10)
-
-
-    def __str__(self):
-        return u'{0}'.format(self.shape)
-
-class Coordinates(models.Model):
-    ''' Docstring, slutter du å mase nå? '''
-    coordinate = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200)
-    shape = models.CharField(max_length=200)
-    room = models.ForeignKey('Room', on_delete=models.CASCADE)
-
-    def clean(self, *args, **kwargs):
-        #add custom validation here
-        #TODO: Could this be done better than CharField? CharField requires validation of input = valid shape.
-        if self.shape.value_to_string() == 'rect':
-            coord_amount = 4
-        if coord_amount:
-            self.coordinate.validators.append(MinLengthValidator(coord_amount))
-            self.coordinate.validators.append(MaxLengthValidator(coord_amount))
-        super(Coordinates, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super(Coordinates, self).save(*args, **kwargs)
 
 class Activities(models.Model):
     ''' Docstring, slutter du å mase nå? '''

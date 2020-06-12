@@ -12,6 +12,9 @@ function myFunction(sel) {
     });
 }
 
+
+
+
 function updateRoomPKs(pk) {
     var toUpdate = document.querySelectorAll('input[id^="id_form"][id$="room"]');
     alert("updating " + toUpdate.length + "pk's to " + pk);
@@ -45,6 +48,14 @@ function csrfSafeMethod(method) {
 }
 
 $(document).ready(function() {
+    var shape = document.getElementById("id_shape");
+    var button = document.createElement("button");
+    button.innerHTML = "Rect";
+    button.onclick = function() {
+        shape.value = "rect";
+    }
+    document.getElementById("buttonPanel").appendChild(button);
+
     $("#roomForm").submit(function(e){
         e.preventDefault();
         alert("Submitting!");

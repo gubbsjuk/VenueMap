@@ -51,9 +51,11 @@
                         <li>
                             <a href="{% url 'room_manage_view' %}">Manage rooms</a>
                         </li>
+                        {% if perms.vm_app.create_room %}
                         <li>
                             <a href="{% url 'room_create_view' %}">Create new room(?)</a>
                         </li>
+                        {% endif %}
                     </ul>
                 </li>
                 {% endif %}
