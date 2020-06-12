@@ -1,8 +1,37 @@
 $('#id_coordinates').change(function(e) {
     if (e.originalEvent) {
         // user-triggered event
+        coordinates = document.getElementById("id_coordinates").value;
+        validateCoordinates(coordinates);
     }
 })
+
+function validateCoordinates(cString) {
+    coordinates = cString.split(',');
+    
+    var shape = document.getElementById("id_shape").value;
+
+    if (coordinates.length == 4) {
+        start = [coordinates[0], coordinates[1]];
+        end = [coordinates[2], coordinates[3]];
+
+        if (shape == 'rect') {
+            drawRect(start, end[0] - start[0], end[1] - start[1]);
+        }
+    
+        else if (shape == 'circle') {
+            drawCircle(start, end);
+        }
+
+        else {
+            alert("invalid coordinates");
+        }
+    }
+
+    else {
+        alert("invalid coordinates");
+    }
+}
 
 var canvas = document.getElementById("venueImgCanvas");
 var ctx= canvas.getContext("2d");
