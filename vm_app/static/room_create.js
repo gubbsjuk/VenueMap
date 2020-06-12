@@ -37,10 +37,6 @@ var canvas = document.getElementById("venueImgCanvas");
 var ctx= canvas.getContext("2d");
 ctx.lineWidth = 2;
 
-var canvasOffset = $("#venueImgCanvas").offset();
-var offsetX = canvasOffset.left;
-var offsetY = canvasOffset.top;
-
 var img = new Image();
 img.onload = function() {
     canvas.width = img.width;
@@ -117,9 +113,10 @@ $("#venueImgCanvas").mousemove(function (e){
 });
 
 function getCursorLoc(e) {
-    mouseX = parseInt(e.clientX - offsetX);
-    mouseY = parseInt(e.clientY - offsetY);
-
+    var rect = canvas.getBoundingClientRect();
+    mouseX = parseInt(e.clientX - rect.left);
+    mouseY = parseInt(e.clientY - rect.top);
+    console.log(mouseX + ", " + mouseY);
     return [mouseX, mouseY];
 }
 
