@@ -185,7 +185,7 @@ def room_detail(request):
 
     return render(request, 'room_detail.html', {})
 
-@permission_required('vm_app.room_create')
+@permission_required('vm_app.add_room')
 def new_room_create_view(request):
     '''
     rewrite of room_create_view
