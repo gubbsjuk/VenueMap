@@ -4,6 +4,8 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import Group, User
 from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
+from django.contrib.auth.models import Group, AbstractUser
+from django.core.validators import validate_comma_separated_integer_list, MinLengthValidator, MaxLengthValidator
 
 # Create your models here.
 
@@ -67,22 +69,11 @@ class Room(models.Model):
     name = models.CharField(max_length=20)
     roomtype = models.ForeignKey('RoomType', on_delete=models.CASCADE)
     venue = models.ForeignKey('Venue', on_delete=models.CASCADE)
-    shape = models.ForeignKey('Shape', on_delete=models.CASCADE)
+    shape = models.CharField(max_length=10, null=True, blank=True, default="")
+    coordinates = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True, default="")
 
     def __str__(self):
         return self.name
-class Shape(models.Model):
-    ''' Docstring, slutter du å mase nå? '''
-    shape = models.CharField(max_length=10)
-
-
-    def __str__(self):
-        return u'{0}'.format(self.shape)
-
-class Coordinates(models.Model):
-    ''' Docstring, slutter du å mase nå? '''
-    coordinate = models.SmallIntegerField()
-    room = models.ForeignKey('Room', on_delete=models.CASCADE)
 
 class Activities(models.Model):
     ''' Docstring, slutter du å mase nå? '''

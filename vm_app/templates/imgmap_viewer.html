@@ -8,7 +8,7 @@
         <img src="{{ venue.arenalayout.url }}" alt="Workplace" usemap="#workmap">
         <map name="workmap">
             {% for room in rooms %}
-            <area class="roomButton" onclick="myFunction({{ room.pk }})" shape="{{ room.shape.shape }}" coords="{% for coord in coordmap %}{{ coord.coordinate }}, {% endfor %}" alt="{{ room.name }}" id="roomPk"{{ room.pk }}>
+            <area class="roomButton" onclick="myFunction({{ room.pk }})" shape="{{ room.shape }}" coords="{{ room.coordinates }}" alt="{{ room.name }}" id="roomPk"{{ room.pk }}>
             {% endfor %}
         </map>
     </div>

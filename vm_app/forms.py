@@ -1,10 +1,10 @@
 ''' Define forms for the application here. '''
-from django.forms import ModelForm, Select, HiddenInput, Form, ChoiceField, widgets, Media
+from django.forms import ModelForm, Select, HiddenInput, Form, ChoiceField, widgets, Media, ValidationError
 from django.contrib.auth.models import User
 from tempus_dominus.widgets import DateTimePicker, DatePicker, TimePicker
-from .models import Room, Coordinates, Activities, Profile
+from .models import Room, Activities, Profile
 
-
+ 
 # TODO: FIX THIS.....
 class SplitDateTimeWidget(widgets.MultiWidget):
     def __init__(self, attrs=None):
@@ -58,18 +58,24 @@ class CreateRoomForm(ModelForm):
         model = Room
         fields = '__all__'
         widgets = {
-            'shape' : Select(attrs={"onChange" : 'myFunction(this);'}),
-            'venue' : Select(attrs={"onChange" : 'changeImage(this)'})
+            'venue' : Select(attrs={"onChange" : 'changeImage(this)'}),
+            'shape' : HiddenInput(),
         }
 
-class CreateCoordinatesForm(ModelForm):
-    ''' From for adding coordinates to room. with room as HiddenInput. '''
-    class Meta:
-        model = Coordinates
-        fields = '__all__'
-        widgets = {
-            'room' : HiddenInput()
-        }
+    def clean(self, *args, **kwargs):
+        cleaned_data = super().clean()
+        shape = cleaned_data.get("shape")
+        coords = cleaned_data.get("coordinates")
+        print(type(coords))
+
+        if shape == 'rect':
+            coord_amount = 4
+        
+        if coord_amount != len(coords.split(',')):
+            msg = ValidationError("Not the expected amount of coordinates.")
+            self.add_error('coordinates', msg)
+        
+        return cleaned_data
 
 class ProfileForm(ModelForm):
 

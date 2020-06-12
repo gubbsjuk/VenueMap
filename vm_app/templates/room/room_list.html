@@ -3,8 +3,10 @@
         {% for room in rooms %}
         <li>
                 {{ room.pk }} {{ room.name }}, {{ room.venue }}
+                {% if perms.vm_app.change_room %}
                 <a href="#" >Edit</a>
-                {% if perms.maptest.delete_room %}
+                {% endif %}
+                {% if perms.vm_app.delete_room %}
                 <a href="#" >Delete</a>
                 {% endif %}
         </li>

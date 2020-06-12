@@ -3,11 +3,10 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
-from django.forms import formset_factory
 from django.utils import timezone
-from .models import Venue, Room, Coordinates, Activities, HomeModuleNames, HomeModules
-from .forms import CreateRoomForm, CreateCoordinatesForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm
-
+from django.contrib.auth.decorators import permission_required
+from .models import Venue, Room, Activities, HomeModuleNames, HomeModules
+from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm
 
 # Create your views here.
 def home_view(request):
@@ -160,11 +159,9 @@ def imgmap_view(request, pk):
     ''' Docstring, slutter du å mase nå? '''
     venue = Venue.objects.get(pk=pk)
     rooms = Room.objects.filter(venue=venue)
-    coordmap = Coordinates.objects.filter(room__in=rooms)
     context = {
         "venue" : venue,
         "rooms" : rooms,
-        "coordmap" : coordmap,
     }
 
     return render(request, 'imgmap_viewer.html', context)
@@ -186,88 +183,42 @@ def room_detail(request):
 
     return render(request, 'room_detail.html', {})
 
+@permission_required('vm_app.add_room')
 def new_room_create_view(request):
     '''
     rewrite of room_create_view
-    TODO: write better docstring and remove old room_create_view
+    TODO: write better docstring and rename function
     '''
     if request.method == 'GET':
-        form = CreateRoomForm()
+        # Get-request without a shape.
+        room_form = CreateRoomForm()
+        #coord_form = CreateCoordinatesForm()
         venues = filter_venues_by_user(request)
-        form.fields['venue'].queryset = venues
+        room_form.fields['venue'].queryset = venues
         context = {
-            'form' : form,
+            'room_form' : room_form,
             'venues' : venues
         }
         return render(request, 'room/room_create.html', context)
 
     if request.method == 'POST':
-        form = CreateRoomForm(request.POST)
-        if form.is_valid():
-            savedmodel = form.save()
-            return HttpResponse(savedmodel.pk)
-
-def room_create_view(request):
-    ''' View for creating a new room.
-        Valid post method returns HttpResponse with primary-key of the room '''
-
-    if request.method == 'POST':
-        print(request.POST.get)
-        form = CreateRoomForm(request.POST)
-        print(form.errors)
-        if form.is_valid():
-            print(form.errors)
-            savedmodel = form.save()
-            return HttpResponse(savedmodel.pk)
-
-        context = {
-            'form' : form
-        }
-        return render(request, 'room/room_create.html', context)
-
-    #if not POST, create the form. Filter venues by venues belonging to the user.
-    form = CreateRoomForm()
-    form.fields['venue'].queryset = filter_venues_by_user(request)
-    context = {
-        'form' : form,
-    }
-    return render(request, 'room/room_create.html', context)
-
-def room_create_coordinates_view(request):
-    ''' View for creating coordinates belonging to a room.
-        Intended to be used with "room_create_view.
-        Awaits a GET-method requesting the expected amount of coordinate-forms to define the shape.
-        '''
-    max_coords = 0
-    if request.method == 'GET':
-        search_value = request.GET.get("shape", None)
-
-        if search_value:
-            #TODO: IMPLEMENT MORE SHAPES HERE
-            if search_value == 'rect':
-                max_coords = 4
-
-            CoordinatesFormSet = formset_factory(CreateCoordinatesForm, extra=max_coords)
-            formset = CoordinatesFormSet()
-            context = {
-                'formset' : formset,
-            }
-            return render(request, 'room/room_create_coordinates.html', context)
-
-    if request.method == 'POST':
-        CoordinatesFormSet = formset_factory(CreateCoordinatesForm, extra=max_coords)
-        formset = CoordinatesFormSet(request.POST)
-        print(formset.errors)
-        if formset.is_valid():
-            for form in formset:
-                form.save()
-
-            return HttpResponseRedirect(reverse('room_manage'))
+        room_form = CreateRoomForm(request.POST)
+        # TODO: Write custom validation of the formset
+        # checking if formset is valid except reference to room PK
+        # OPTIMALIZE: Using comma-separated with custom validation to check amount of numbers stops having to use AJAX and a for loop to iterate formset.
+        print(room_form.errors)
+        if room_form.is_valid():
+            #savedmodel = room_form.save()
+            #coord_form = CreateCoordinatesForm(request.POST)
+            #coord_form.fields['room'].initial  = savedmodel.pk
+            #if coord_form.is_valid():
+                #form.save()
+            return HttpResponseRedirect(reverse('room_manage_view'))
 
 def room_manage_view(request):
     ''' View for managing rooms '''
-    venues = filter_venues_by_usergroup(request)
-
+    venues = filter_venues_by_user(request)
+    print(venues)
     context = {
         'venues' : venues,
     }
@@ -276,7 +227,7 @@ def room_manage_view(request):
 def room_list_view(request):
     ''' View that lists rooms. Intended to be used with room_manage_view
         Filter can be set with GET.method where the data is the venue.PK'''
-    venues = filter_venues_by_usergroup(request)
+    venues = filter_venues_by_user(request)
     #Result is not 'noFilter' or GET doesnt contain key define rooms to:
     rooms = Room.objects.filter(venue__in=venues)
     if request.method == 'GET':
