@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.decorators import permission_required
-from .models import Venue, Room, Activities, HomeModuleNames, HomeModules
+from .models import Venue, Room, Activities, HomeModuleNames, Profile
 from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm
 
 # Create your views here.
@@ -35,7 +35,7 @@ def home_view(request):
         if request.user.is_authenticated:
             if request.POST.__contains__('modulePos'):
                 modulepos = int(request.POST.__getitem__('modulePos'))
-                modules = HomeModules.objects.get(user_id=request.user)
+                modules = Profile.objects.get(user_id=request.user)
                 # TODO: Fill in rest of modulepositions
                 # Better way to do this?
                 if request.POST.__getitem__('update') == "true":

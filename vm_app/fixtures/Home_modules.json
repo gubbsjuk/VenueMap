@@ -1,0 +1,30 @@
+[
+    {
+        "model": "vm_app.HomeModuleNames",
+        "pk": 1,
+        "fields": {
+            "name": "venue"
+        }
+    },
+    {
+        "model": "vm_app.HomeModuleNames",
+        "pk": 2,
+        "fields": {
+            "name": "today"
+        }
+    },
+    {
+        "model": "vm_app.HomeModuleNames",
+        "pk": 3,
+        "fields": {
+            "name": "activities"
+        }
+    },
+    {
+        "model": "vm_app.HomeModuleNames",
+        "pk": 4,
+        "fields": {
+            "name": "rooms"
+        }
+    }
+]

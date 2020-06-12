@@ -17,17 +17,6 @@ class HomeModuleNames(models.Model):
     def __str__(self):
         return u'{0}'.format(self.name)
 
-class HomeModules(models.Model):
-    '''
-    Model containing all possible homeModules.
-    '''
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    module1 = models.ForeignKey(HomeModuleNames, on_delete=models.CASCADE, related_name='module1')
-    module2 = models.ForeignKey(HomeModuleNames, on_delete=models.CASCADE, related_name='module2')
-    module3 = models.ForeignKey(HomeModuleNames, on_delete=models.CASCADE, related_name='module3')
-    module4 = models.ForeignKey(HomeModuleNames, on_delete=models.CASCADE, related_name='module4')
-
-
 class Venue(models.Model):
     ''' Model for venues '''
     name = models.CharField(max_length=20)
@@ -55,6 +44,10 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     venues = models.ManyToManyField(Venue)
     phone_number = PhoneNumberField(blank=True, null=True, unique=True)
+    module1 = models.ForeignKey(HomeModuleNames, on_delete=models.CASCADE, related_name='module1', null=True)
+    module2 = models.ForeignKey(HomeModuleNames, on_delete=models.CASCADE, related_name='module2', null=True)
+    module3 = models.ForeignKey(HomeModuleNames, on_delete=models.CASCADE, related_name='module3', null=True)
+    module4 = models.ForeignKey(HomeModuleNames, on_delete=models.CASCADE, related_name='module4', null=True)
 
 class RoomType(models.Model):
     ''' Docstring, slutter du å mase nå? '''
