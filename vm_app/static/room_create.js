@@ -1,22 +1,102 @@
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+$('#id_coordinates').change(function(e) {
+    if (e.originalEvent) {
+        // user-triggered event
     }
-    return cookieValue;
+})
+
+var canvas = document.getElementById("venueImgCanvas");
+var ctx= canvas.getContext("2d");
+ctx.lineWidth = 2;
+
+var canvasOffset = $("#venueImgCanvas").offset();
+var offsetX = canvasOffset.left;
+var offsetY = canvasOffset.top;
+
+var img = new Image();
+img.onload = function() {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
 }
 
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+var startpoint, endpoint, timeout;
+var pressed = false;
+
+function degToRad(degrees) {
+    return degrees * Math.PI / 180;
+}
+
+function drawRect(start, width, height) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    ctx.beginPath();
+    ctx.rect(start[0], start[1], width, height);
+    ctx.stroke();
+}
+
+function drawCircle(start, stop) {
+    radius = Math.sqrt(Math.pow((stop[0] - start[0]),2) + Math.pow((stop[1] - start [1]),2));
+    console.log(radius)
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    ctx.beginPath();
+    ctx.arc(start[0], start[1], radius, degToRad(0), degToRad(360), false);
+    ctx.stroke();
+}
+
+$("#venueImgCanvas").mousedown(function (e){
+    startpoint = getCursorLoc(e);
+    endpoint = getCursorLoc(e);
+    var shape = document.getElementById("id_shape").value;
+    if (shape) {
+        timeout = setInterval(function(){
+        pressed = true;
+        if (endpoint != null){
+            if (shape == 'rect') {
+                popCoords(startpoint, endpoint);
+                drawRect(startpoint, endpoint[0] - startpoint[0], endpoint[1] - startpoint[1]);
+            }
+            if (shape == 'circle') {
+                popCoords(startpoint, endpoint);
+                drawCircle(startpoint, endpoint);
+            }
+        }
+        }, 50);
+    }
+    return false;
+});
+
+$("#venueImgCanvas").mouseup(function (e){
+    if (timeout != null) {
+        clearInterval(timeout);
+    }
+    return false;
+});
+
+$("#venueImgCanvas").mouseout(function() {
+    if (timeout != null) {
+        clearInterval(timeout);
+    }
+    return false;
+});
+
+$("#venueImgCanvas").mousemove(function (e){
+    if (pressed) {
+        endpoint = getCursorLoc(e);
+    }
+});
+
+function getCursorLoc(e) {
+    mouseX = parseInt(e.clientX - offsetX);
+    mouseY = parseInt(e.clientY - offsetY);
+
+    return [mouseX, mouseY];
+}
+
+function popCoords(startpoint, endpoint) {
+    var coordinates = document.getElementById("id_coordinates")
+    coordinates.value = startpoint[0] + "," + startpoint[1] + "," + endpoint[0] + "," + endpoint[1];
 }
 
 $(document).ready(function() {
@@ -37,54 +117,5 @@ $(document).ready(function() {
     var btnPanel = document.getElementById("buttonPanel");
     btnPanel.appendChild(rectButton);
     btnPanel.appendChild(circleButton);
-    
-    $("#roomForm").submit(function(e){
-        e.preventDefault();
-        alert("Submitting!");
-        var form = $(this);
-        console.log("Form is:");
-        console.log(form);
 
-        var csrftoken = getCookie('csrftoken');
-
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-
-        $(this).ajaxSubmit({
-            url : '/room_create/',
-            type : 'POST',
-            success : function(response) {
-                alert(response);
-                updateRoomPKs(response)
-            }
-        });
-    });
-
-    $("#coordForm").submit(function(e){
-        e.preventDefault();
-        alert("Submitting!");
-        var form = $(this);
-        console.log("Form is:");
-        console.log(form);
-
-        var csrftoken = getCookie('csrftoken');
-
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-
-        $(this).ajaxSubmit({
-            url : '/room_create_coordinates/',
-            type : 'POST',
-        });
-    });
 });
