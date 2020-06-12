@@ -1,7 +1,7 @@
 ''' Admin module features added here.. '''
 from django.contrib             import admin
 from django.contrib.auth.admin  import UserAdmin
-from .models                    import Venue, Room, RoomType, Activities, HomeModuleNames, HomeModules, Profile
+from .models                    import Venue, Room, RoomType, Activities, HomeModuleNames, Profile
 
 class VenueAdmin(admin.ModelAdmin):
     ''' Admin module for Venue model '''
@@ -33,4 +33,3 @@ admin.site.register(Room, RoomAdmin)
 admin.site.register(RoomType, RoomTypeAdmin)
 admin.site.register(Activities, ActivityAdmin)
 admin.site.register(HomeModuleNames, HomeModuleNamesAdmin)
-admin.site.register(HomeModules)
