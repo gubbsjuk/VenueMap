@@ -8,8 +8,6 @@ from django.contrib.auth.decorators import permission_required
 from .models import Venue, Room, Activities, HomeModuleNames, HomeModules
 from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm
 
-
-
 # Create your views here.
 def home_view(request):
     ''' base/start page view '''
@@ -189,7 +187,7 @@ def room_detail(request):
 def new_room_create_view(request):
     '''
     rewrite of room_create_view
-    TODO: write better docstring and remove old room_create_view
+    TODO: write better docstring and rename function
     '''
     if request.method == 'GET':
         # Get-request without a shape.

@@ -21,13 +21,23 @@ function csrfSafeMethod(method) {
 
 $(document).ready(function() {
     var shape = document.getElementById("id_shape");
-    var button = document.createElement("button");
-    button.innerHTML = "Rect";
-    button.onclick = function() {
+
+    var rectButton = document.createElement("button");
+    rectButton.innerHTML = "Rect";
+    rectButton.onclick = function() {
         shape.value = "rect";
     }
-    document.getElementById("buttonPanel").appendChild(button);
 
+    var circleButton = document.createElement("button");
+    circleButton.innerHTML = "Circle";
+    circleButton.onclick = function() {
+        shape.value = "circle";
+    }
+
+    var btnPanel = document.getElementById("buttonPanel");
+    btnPanel.appendChild(rectButton);
+    btnPanel.appendChild(circleButton);
+    
     $("#roomForm").submit(function(e){
         e.preventDefault();
         alert("Submitting!");

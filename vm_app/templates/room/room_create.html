@@ -50,14 +50,17 @@
         startpoint = getCursorLoc(e);
         point2 = getCursorLoc(e);
         var shape = document.getElementById("id_shape").value;
-        
         if (shape) {
             timeout = setInterval(function(){
             pressed = true;
             if (point2 != null){
-                if (shape = 'rect') {
-                    popCoords(startpoint[0], startpoint[1], point2[0], point2[1]);
+                if (shape == 'rect') {
+                    popCoords(startpoint, point2);
                     drawRect(startpoint, point2[0] - startpoint[0], point2[1] - startpoint[1]);
+                }
+                if (shape == 'circle') {
+                    popCoords(startpoint, point2);
+                    drawCircle(startpoint, point2);
                 }
             }
             }, 100);
@@ -93,6 +96,21 @@
         ctx.stroke();
     }
 
+    function degToRad(degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+    function drawCircle(start, stop) {
+        radius = Math.sqrt(Math.pow((stop[0] - start[0]),2) + Math.pow((stop[1] - start [1]),2));
+        console.log(radius)
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        ctx.beginPath();
+        ctx.arc(start[0], start[1], radius, degToRad(0), degToRad(360), false);
+        ctx.stroke();
+    }
+
     function changeImage(select) {
         {% for venue in venues %}
         var pk = {{ venue.pk }}
@@ -113,9 +131,9 @@
         document.getElementById("roomForm").submit()
     }
 
-    function popCoords(x1, y1, x2, y2) {
+    function popCoords(startpoint, endpoint) {
         var coordinates = document.getElementById("id_coordinates")
-        coordinates.value = x1 + "," + y1 + "," + x2 + "," + y2;
+        coordinates.value = startpoint[0] + "," + startpoint[1] + "," + endpoint[0] + "," + endpoint[1];
     }
 </script>
 
