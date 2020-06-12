@@ -116,7 +116,6 @@ function getCursorLoc(e) {
     var rect = canvas.getBoundingClientRect();
     mouseX = parseInt(e.clientX - rect.left);
     mouseY = parseInt(e.clientY - rect.top);
-    console.log(mouseX + ", " + mouseY);
     return [mouseX, mouseY];
 }
 
