@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block page_content %}
+
+<ul>
+    {% for usr in usrs %}
+    <li>
+        {{usr}} <a href="#" >Edit</a> <a href="#" >Delete</a>
+    </li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}

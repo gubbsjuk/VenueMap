@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import permission_required
 from .models import Venue, Room, Activities, HomeModuleNames, Profile
 from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm
+from django.contrib.auth.models import User
 
 # Create your views here.
 def home_view(request):
@@ -308,3 +309,11 @@ def profile_update_view(request):
     }
 
     return render(request, 'profile_form.html', context)
+
+def manage_users_view(request):
+    group = request.user.groups.all()
+    users = User.objects.filter(groups__in=group)
+
+    print(group)
+    print(users)
+    return render(request, 'user/manage_users.html', {'usrs' : users})
