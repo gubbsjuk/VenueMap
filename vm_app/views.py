@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.decorators import permission_required
 from .models import Venue, Room, Activities, HomeModuleNames, Profile
-from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm, EditUserForm
+from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm, EditUserForm, EditUserVenueForm
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -317,6 +317,7 @@ def manage_users_view(request):
 
     return render(request, 'user/manage_users.html', {'usrs' : users})
 
+@permission_required('auth.change_permission')
 def edit_user_view(request, pk):
     user = User.objects.get(pk=pk)
     venues = request.user.profile.venues.all().values_list('id', flat=True)
@@ -324,17 +325,20 @@ def edit_user_view(request, pk):
 
     if user.groups.filter(id__in=rGroups).exists():
         if request.method == 'GET':
-            form = EditUserForm(user=user, venues=venues)
-
+            form = EditUserForm(user=user)
+            venue_form = EditUserVenueForm(user=user, venues=venues)
         if request.method == 'POST':
-            form = EditUserForm(request.POST, user=user, venues=venues)
-            if form.is_valid():
+            form = EditUserForm(request.POST, user=user)
+            venue_form = EditUserVenueForm(request.POST, user=user, venues=venues)
+            if form.is_valid() and venue_form.is_valid():
                 form.save()
+                venue_form.save()
                 return redirect('manage_users_view')
 
         context = {
             'user' : user,
             'form' : form,
+            'venue_form' : venue_form
             }
 
         return render(request, 'user/edit_user.html', context)

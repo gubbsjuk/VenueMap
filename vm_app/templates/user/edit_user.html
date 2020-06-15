@@ -15,6 +15,17 @@
         {{form.venue_can_edit}}
         <label for="{{form.venue_can_delete.id_for_label}}" style="margin-left:30px">{{form.venue_can_delete.label}}</label>
         {{form.venue_can_delete}}
+        <hr/>
+        <ul class="list-group list-group-horizontal">
+            {{ venue_form.as_ul }}
+        </ul>
+
+        <script>
+            const listItems = document.querySelectorAll(".list-group li");
+            for (let i = 0; i < listItems.length; i++) {
+                listItems[i].className = "list-group-item";
+            }
+        </script>
     </div>
     
     <div class="rounded border border-secondary" style="padding-left:10px; padding-top:10px; margin-bottom: 30px;">

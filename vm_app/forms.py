@@ -90,6 +90,33 @@ class UserForm(ModelForm):
         model = User
         fields = {'username', 'first_name', 'last_name', 'email'}
 
+class EditUserVenueForm(Form):
+    user = None
+    venues = None
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        venues = kwargs.pop('venues')
+        self.user = user
+        self.venues = venues
+
+        super(EditUserVenueForm, self).__init__(*args, **kwargs)
+
+        for venue in venues:
+            venue_obj = Venue.objects.get(pk=venue)
+            venue_id = 'venue_' + str(venue)
+            self.fields[venue_id] = BooleanField(label="Can see " + venue_obj.name, required=False)
+            self.fields[venue_id].initial = user.profile.venues.filter(pk=venue).exists()
+
+    def save(self):
+
+        for venue in self.venues:
+            key = 'venue_' + str(venue)
+            if self.cleaned_data.get(key):
+                self.user.profile.venues.add(Venue.objects.get(id=venue))
+            else:
+                self.user.profile.venues.remove(Venue.objects.get(id=venue))
+
 class EditUserForm(Form):
     user = None
     venue_can_edit = BooleanField(label="Can edit venues:", required=False)
@@ -108,6 +135,7 @@ class EditUserForm(Form):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
+
         super(EditUserForm, self).__init__(*args, **kwargs)
 
         self.user = user
