@@ -1,12 +1,12 @@
 ''' Define views attached to templates here. '''
 import json
-from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseForbidden
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.decorators import permission_required
 from .models import Venue, Room, Activities, HomeModuleNames, Profile
-from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm
+from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm, EditUserForm
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -310,10 +310,32 @@ def profile_update_view(request):
 
     return render(request, 'profile_form.html', context)
 
+@permission_required('auth.change_permission')
 def manage_users_view(request):
     group = request.user.groups.all()
     users = User.objects.filter(groups__in=group)
 
-    print(group)
-    print(users)
     return render(request, 'user/manage_users.html', {'usrs' : users})
+
+def edit_user_view(request, pk):
+    user = User.objects.get(pk=pk)
+    venues = request.user.profile.venues.all().values_list('id', flat=True)
+    rGroups = request.user.groups.all().values_list('id', flat=True)
+
+    if user.groups.filter(id__in=rGroups).exists():
+        if request.method == 'GET':
+            form = EditUserForm(user=user, venues=venues)
+
+        if request.method == 'POST':
+            form = EditUserForm(request.POST, user=user, venues=venues)
+            if form.is_valid():
+                form.save()
+                return redirect('manage_users_view')
+
+        context = {
+            'user' : user,
+            'form' : form,
+            }
+
+        return render(request, 'user/edit_user.html', context)
+    return HttpResponseForbidden()
