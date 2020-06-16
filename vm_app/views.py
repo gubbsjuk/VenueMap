@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpRe
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.decorators import permission_required
-from .models import Venue, Room, Activities, HomeModuleNames, Profile
+from .models import Venue, Room, Activities, HomeModuleNames, Profile, Client_user_permissions, Client
 from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm, EditUserForm, EditUserVenueForm
 from django.contrib.auth.models import User
 
@@ -125,10 +125,10 @@ def filter_activities_by_user(request):
 
     return activities
 
-def filter_venues_by_usergroup(request):
+def filter_venues_by_clients(request):
     ''' Utilitary function to filter Venues by their assigned client. '''
-    current_usergroups = request.user.groups.all()
-    return Venue.objects.filter(client__in=current_usergroups)
+    current_clients = request.user.clients.all()
+    return Venue.objects.filter(client__in=current_clients)
 
 def filter_venues_by_user(request):
     ''' Utilitary function to filter Venues by user permitted to view.
@@ -312,8 +312,8 @@ def profile_update_view(request):
 
 @permission_required('auth.change_permission')
 def manage_users_view(request):
-    group = request.user.groups.all()
-    users = User.objects.filter(groups__in=group)
+    client = request.user.profile.selected_client
+    users = User.objects.filter(clients=client)
 
     return render(request, 'user/manage_users.html', {'usrs' : users})
 
@@ -321,9 +321,9 @@ def manage_users_view(request):
 def edit_user_view(request, pk):
     user = User.objects.get(pk=pk)
     venues = request.user.profile.venues.all().values_list('id', flat=True)
-    rGroups = request.user.groups.all().values_list('id', flat=True)
+    rClients = request.user.clients.all().values_list('id', flat=True)
 
-    if user.groups.filter(id__in=rGroups).exists():
+    if user.clients.filter(id__in=rClients).exists():
         if request.method == 'GET':
             form = EditUserForm(user=user)
             venue_form = EditUserVenueForm(user=user, venues=venues)
@@ -343,3 +343,13 @@ def edit_user_view(request, pk):
 
         return render(request, 'user/edit_user.html', context)
     return HttpResponseForbidden()
+
+def change_client(request, pk):
+    user = request.user
+    client_user_perms = Client_user_permissions.objects.get(client=pk, user=user)
+
+    user.user_permissions.set(client_user_perms.permissions.all())
+    user.profile.selected_client = Client.objects.get(pk=pk)
+    user.save()
+
+    return redirect(request.META['HTTP_REFERER'])

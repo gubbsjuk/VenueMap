@@ -33,9 +33,20 @@
             </div>
 
             <ul class="list-unstyled components">
-                <p>Dummy Heading</p>
                 {% if user.is_authenticated %}
-                <li class="active">
+                <li>
+
+                        <a href="#clientsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">{{user.profile.selected_client.name}}</a>
+
+                        <ul class="collapse list-unstyled" id="clientsSubmenu">
+                            {% for client in sidebar_clients %}
+                            <li><a href="{% url 'change_client' client.pk %}">{{ client.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    
+                </li>
+                <hr/>
+                <li>
                     <a href="#venuesSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Venues</a>
                     <ul class="collapse list-unstyled" id="venuesSubmenu">
                         {% for venue in sidebar_venues %}

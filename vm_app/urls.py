@@ -14,4 +14,5 @@ urlpatterns = [
     path('profile/', views.profile_update_view, name='profile_update_view'),
     path('manage_users/', views.manage_users_view, name='manage_users_view'),
     path('edit_user/<int:pk>/', views.edit_user_view, name='edit_user_view'),
+    path('change_client/<int:pk>', views.change_client, name='change_client'),
 ]
