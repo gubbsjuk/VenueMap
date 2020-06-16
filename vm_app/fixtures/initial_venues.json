@@ -1,0 +1,72 @@
+[
+
+    {
+        "model": "vm_app.Venue",
+        "pk": 1,
+        "fields": {
+            "name": "SBM Arena",
+            "webpage": "www.sbm.no",
+            "streetaddress": "Sjøvegen 77",
+            "zipcode": 6015,
+            "city": "Giske",
+            "arenalayout": "arenalayouts/house.png",
+            "client": 1
+        }
+    },
+
+    {
+        "model": "vm_app.Venue",
+        "pk": 2,
+        "fields": {
+            "name": "Colorline Stadion",
+            "webpage": "www.cls.no",
+            "streetaddress": "Fotballveien 33",
+            "zipcode": 6010,
+            "city": "Ålesund",
+            "arenalayout": "arenalayouts/house.png",
+            "client": 1
+        }
+    },
+
+    {
+        "model": "vm_app.Venue",
+        "pk": 3,
+        "fields": {
+            "name": "Molde Stadion",
+            "webpage": "www.mil.no",
+            "streetaddress": "Moldegata 1",
+            "zipcode": 5009,
+            "city": "Mollæ",
+            "arenalayout": "arenalayouts/house.png",
+            "client": 2
+        }
+    },
+
+    {
+        "model": "vm_app.Venue",
+        "pk": 4,
+        "fields": {
+            "name": "Hareid Ballbane",
+            "webpage": "www.hareidballeklubb.as",
+            "streetaddress": "Ballevegen 69",
+            "zipcode": 3002,
+            "city": "Harryeid",
+            "arenalayout": "arenalayouts/house.png",
+            "client": 3
+        }
+    },
+
+    {
+        "model": "vm_app.Venue",
+        "pk": 5,
+        "fields": {
+            "name": "Colorline Stadion",
+            "webpage": "www.cls.no",
+            "streetaddress": "Fotballveien 33",
+            "zipcode": 6010,
+            "city": "Ålesund",
+            "arenalayout": "arenalayouts/house.png",
+            "client": 1
+        }
+    }
+]

@@ -1,0 +1,22 @@
+[
+
+    {
+        "model": "vm_app.RoomType",
+        "pk": 1,
+        "fields": {
+            "name": "Garderobe"
+        }
+    },
+
+    {
+        "model": "vm_app.Room",
+        "pk": 1,
+        "fields": {
+          "name": "Bedroom 2",
+          "roomtype": 1,
+          "venue": 1,
+          "shape": "rect",
+          "coordinates": "10,10,100,200"
+        }
+    }
+]

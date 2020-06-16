@@ -1,6 +1,6 @@
 ''' Database models added here '''
 from django.db import models
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, pre_delete, m2m_changed
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
@@ -22,7 +22,7 @@ class HomeModuleNames(models.Model):
 class Client(models.Model):
     name = models.CharField(max_length=50)
     billing_address = models.CharField(max_length=50)
-    users = models.ManyToManyField(User, related_name="clients")
+    users = models.ManyToManyField(User, related_name="clients", blank=True)
     # TODO: Add more client specific information.
     
     def __str__(self):
@@ -98,3 +98,27 @@ def update_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
     instance.profile.save()
+
+@receiver(m2m_changed, sender=Client.users.through)
+def create_client_perms(sender, **kwargs):
+    print(kwargs)
+    client = kwargs.pop('instance')
+    action = kwargs.pop('action')
+    if action == 'post_remove':
+        pk_set = kwargs.pop('pk_set')
+        print("Deleting: " + str(pk_set))
+        for user_pk in pk_set:
+            user = User.objects.get(pk=user_pk)
+            try:
+                Client_user_permissions.objects.get(client=client, user=user).delete()
+            except Client_user_permissions.DoesNotExist:
+                pass
+    if action == 'post_add':
+        pk_set = kwargs.pop('pk_set')
+        print("Adding: " + str(pk_set))
+        for user_pk in pk_set:
+            user = User.objects.get(pk=user_pk)
+            if not Client_user_permissions.objects.filter(client=client, user=user).exists():
+                entry = Client_user_permissions(user=user, client=client)
+                entry.save()
+

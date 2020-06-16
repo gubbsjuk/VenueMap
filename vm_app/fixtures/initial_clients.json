@@ -1,0 +1,28 @@
+[
+    {
+        "model": "vm_app.Client",
+        "pk": 1,
+        "fields": {
+          "name": "Ålesund Fotball AS",
+          "billing_address": "Fjellbu 31"
+        }
+    },
+
+    {
+        "model": "vm_app.Client",
+        "pk": 2,
+        "fields": {
+          "name": "Molde Fotball AS",
+          "billing_address": "Gokkistan 69"
+        }
+    },
+
+    {
+        "model": "vm_app.Client",
+        "pk": 3,
+        "fields": {
+          "name": "Ulstein Fotball AS",
+          "billing_address": "Kaiveien 22"
+        }
+    }
+]

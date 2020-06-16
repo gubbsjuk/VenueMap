@@ -1,0 +1,39 @@
+[
+    { 
+        "model": "auth.user",
+        "pk": 10,
+        "fields": {
+            "username": "Kundekonto_all",
+            "password": "password"
+        }
+    },
+
+
+    { 
+        "model": "auth.user",
+        "pk": 11,
+        "fields": {
+            "username": "Kundekonto_Ålesund",
+            "password": "password"
+        }
+    },
+
+    { 
+        "model": "auth.user",
+        "pk": 12,
+        "fields": {
+            "username": "Kundekonto_Molde",
+            "password": "password"
+        }
+    },
+
+    { 
+        "model": "auth.user",
+        "pk": 13,
+        "fields": {
+            "username": "Kundekonto_Ulsteinvik",
+            "password": "password"
+        }
+    }
+
+]
