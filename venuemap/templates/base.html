@@ -88,9 +88,9 @@
                     </ul>
                 </li>
                 {% endif %}
-                {% if user.is_authenticated %}
+                {% if perms.auth.change_permission %}
                 <li>
-                    <a href="#">Manage Users</a>
+                    <a href="{% url 'manage_users_view' %}">Manage Users</a>
                 </li>
                 {% endif %}
                 <li>
