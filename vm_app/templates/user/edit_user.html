@@ -3,10 +3,38 @@
 
 <h3>Edit user</h3>
 <h4>{{user.username}}</h4>
+<div class="rounded border border-secondary" style="padding-left:10px; padding-top:10px; padding-bottom:10px; margin-bottom: 30px">
+    <ul class="list-group list-group-horizontal">
+        <li class="list-group-item">
+            <div>
+                <h6>First name:</h6>
+                <p>{{user.first_name}}</p>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div>
+                <h6>Last name:</h6>
+                <p>{{user.last_name}}</p>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div>
+                <h6>Email:</h6>
+                <p>{{user.email}}</p>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div>
+                <h6>Phone:</h6>
+                <p>{{user.profile.phone_number}}</p>
+            </div>
+        </li>
+    </ul>
+</div>
 <form action='#' method='POST'>
     {% csrf_token %}
     {{ form.non_field_errors }}
-    <div class="rounded border border-secondary" style="padding-left:10px; padding-top:10px; margin-bottom: 30px;">
+    <div class="rounded border border-secondary" style="padding-left:10px; padding-top:10px; padding-bottom:10px; margin-bottom: 30px;">
         <h5>Venue</h5>
         <hr/>
         {{ form.venue_can_edit.errors }}
@@ -28,7 +56,7 @@
         </script>
     </div>
     
-    <div class="rounded border border-secondary" style="padding-left:10px; padding-top:10px; margin-bottom: 30px;">
+    <div class="rounded border border-secondary" style="padding-left:10px; padding-top:10px; padding-bottom:10px; margin-bottom: 30px;">
         <h5>Room</h5>
         <hr/>
         {{form.room_can_add.errors}}
