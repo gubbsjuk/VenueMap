@@ -2,7 +2,11 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from project_setup import main as project_setup_main
 
+if __name__ == '__main__':
+    project_setup_main()
+    #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'yoursettings')
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'venuemap.settings')
