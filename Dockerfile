@@ -17,9 +17,11 @@ COPY db.sqlite3 db.sqlite3
 
 # Install requirements
 RUN pip install -r requirements.txt
+RUN pip install -r gunicorn
 
 # EXPOSE PORT 8000 FOR WEBAPP
 EXPOSE 8000
 
 # START SERVER
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+#CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD exec gunicorn djangoapp.wsgi:application --bind 0.0.0.0:8000 --workers 3

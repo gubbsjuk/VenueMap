@@ -24,10 +24,10 @@ STATICFILES_DIRS = (
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'pmsj!%fqu(=yg@%)detig*96&yv2*+#vq1$#0!$x*sal4&*62!'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'pmsj!%fqu(=yg@%)detig*96&yv2*+#vq1$#0!$x*sal4&*62!')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', True)
 
 ALLOWED_HOSTS = []
 
