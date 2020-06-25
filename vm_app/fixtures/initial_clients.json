@@ -4,7 +4,8 @@
         "pk": 1,
         "fields": {
           "name": "Ålesund Fotball AS",
-          "billing_address": "Fjellbu 31"
+          "billing_address": "Fjellbu 31",
+          "users": [10, 11]
         }
     },
 
@@ -13,7 +14,8 @@
         "pk": 2,
         "fields": {
           "name": "Molde Fotball AS",
-          "billing_address": "Gokkistan 69"
+          "billing_address": "Gokkistan 69",
+          "users": [10, 12]
         }
     },
 
@@ -22,7 +24,8 @@
         "pk": 3,
         "fields": {
           "name": "Ulstein Fotball AS",
-          "billing_address": "Kaiveien 22"
+          "billing_address": "Kaiveien 22",
+          "users": [10, 13]
         }
     }
 ]

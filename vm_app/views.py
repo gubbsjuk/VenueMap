@@ -133,7 +133,7 @@ def filter_venues_by_clients(request):
 def filter_venues_by_user(request):
     ''' Utilitary function to filter Venues by user permitted to view.
         Currently not implemented and returns Venue.objects.get() '''
-    venue = request.user.profile.venues.all()
+    venue = request.user.client_user_perms.venues.all()
     return venue
 
 def filter_rooms_by_user(request):
@@ -320,16 +320,18 @@ def manage_users_view(request):
 @permission_required('auth.change_permission')
 def edit_user_view(request, pk):
     user = User.objects.get(pk=pk)
-    venues = request.user.profile.venues.all().values_list('id', flat=True)
+    client = request.user.profile.selected_client
+    perms = Client_user_permissions.objects.get(user=request.user, client=client)
+    venues = perms.venues.all().values_list('id', flat=True)
     rClients = request.user.clients.all().values_list('id', flat=True)
 
     if user.clients.filter(id__in=rClients).exists():
         if request.method == 'GET':
             form = EditUserForm(user=user)
-            venue_form = EditUserVenueForm(user=user, venues=venues)
+            venue_form = EditUserVenueForm(user=user, venues=venues, client=client)
         if request.method == 'POST':
             form = EditUserForm(request.POST, user=user)
-            venue_form = EditUserVenueForm(request.POST, user=user, venues=venues)
+            venue_form = EditUserVenueForm(request.POST, user=user, venues=venues, client=client)
             if form.is_valid() and venue_form.is_valid():
                 form.save()
                 venue_form.save()

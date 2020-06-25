@@ -2,7 +2,7 @@
 from django.forms import ModelForm, Select, HiddenInput, Form, ChoiceField, widgets, Media, ValidationError, SelectMultiple, Form, BooleanField
 from django.contrib.auth.models import User, Permission
 from tempus_dominus.widgets import DateTimePicker, DatePicker, TimePicker
-from .models import Room, Activities, Profile, Venue
+from .models import Room, Activities, Profile, Venue, Client_user_permissions
 from django.contrib.contenttypes.models import ContentType
 
  
@@ -96,9 +96,11 @@ class EditUserVenueForm(Form):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
+        client = kwargs.pop('client')
         venues = kwargs.pop('venues')
         self.user = user
         self.venues = venues
+        perms = Client_user_permissions.objects.get(user=user, client=client)
 
         super(EditUserVenueForm, self).__init__(*args, **kwargs)
 
@@ -106,7 +108,7 @@ class EditUserVenueForm(Form):
             venue_obj = Venue.objects.get(pk=venue)
             venue_id = 'venue_' + str(venue)
             self.fields[venue_id] = BooleanField(label="Can see " + venue_obj.name, required=False)
-            self.fields[venue_id].initial = user.profile.venues.filter(pk=venue).exists()
+            self.fields[venue_id].initial = perms.venues.filter(pk=venue).exists()
 
     def save(self):
 

@@ -1,9 +1,13 @@
-from vm_app.models import Venue, Profile, Client
+from vm_app.models import Venue, Profile, Client,Client_user_permissions
 
 def venues(request):
     user = request.user
     if user.is_authenticated:
-        venue = request.user.profile.venues.all()
+        try:
+            perms = Client_user_permissions.objects.get(user=user, client=user.profile.selected_client)
+            venue = perms.venues.all()
+        except Client_user_permissions.DoesNotExist:
+            venue = None
         return {'sidebar_venues' : venue}
     return {'sidebar_venues' : ()}
 

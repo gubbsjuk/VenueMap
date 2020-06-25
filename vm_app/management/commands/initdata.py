@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand, call_command
 from django.contrib.auth.models import User
-from vm_app.models import Profile
+from vm_app.models import Profile, Client_user_permissions
 # from yourapp.models import User # if you have a custom user
 
 class Command(BaseCommand):
@@ -15,7 +15,12 @@ class Command(BaseCommand):
         for user in User.objects.all():
             user.set_password(user.password)
             user.save()
-
-        profile = Profile.objects.get(user=10)
-        profile.venues.set([1])
-        profile.save()
+        
+        perms_alesund = Client_user_permissions.objects.all().filter(user=10, client=1).get()
+        perms_molde = Client_user_permissions.objects.all().filter(user=10, client=2).get()
+        perms_ulstein = Client_user_permissions.objects.all().filter(user=10, client=3).get()
+        
+        perms_alesund.venues.set([1,2])
+        perms_molde.venues.set([3])
+        perms_ulstein.venues.set([4])
+ 

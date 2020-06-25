@@ -22,16 +22,16 @@ class ActivityAdmin(admin.ModelAdmin):
 class HomeModuleNamesAdmin(admin.ModelAdmin):
     readonly_fields = ('id',)
 
-class ProfileAdmin(admin.ModelAdmin):
+class Client_user_permissions_admin(admin.ModelAdmin):
     ''' Admin module for Profile model '''
-    filter_horizontal = ('venues',)
+    filter_horizontal = ('venues','permissions')
 
 # Register your models here.
-admin.site.register(Profile, ProfileAdmin)
+admin.site.register(Profile)
 admin.site.register(Venue, VenueAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(RoomType, RoomTypeAdmin)
 admin.site.register(Activities, ActivityAdmin)
 admin.site.register(HomeModuleNames, HomeModuleNamesAdmin)
 admin.site.register(Client)
-admin.site.register(Client_user_permissions)
+admin.site.register(Client_user_permissions, Client_user_permissions_admin)
