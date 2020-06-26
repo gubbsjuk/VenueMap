@@ -46,13 +46,13 @@ class Client_user_permissions(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="client_user_perms")
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     permissions = models.ManyToManyField(Permission, blank=True)
+    venues = models.ManyToManyField(Venue)
 
     def __str__(self):
         return u'{0}'.format(self.client) + ' | ' + u'{0}'.format(self.user)
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    venues = models.ManyToManyField(Venue)
     phone_number = PhoneNumberField(blank=True, null=True, unique=True)
     selected_client = models.ForeignKey(Client, on_delete=models.SET, blank=True, null=True)
     module1 = models.ForeignKey(HomeModuleNames, on_delete=models.DO_NOTHING, related_name='module1', null=True)
@@ -97,6 +97,11 @@ class Activities(models.Model):
 def update_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+        try:
+            client = instance.clients.all()[:1].get()
+            instance.profile.selected_client = client
+        except Client.DoesNotExist:
+            pass
     instance.profile.save()
 
 @receiver(m2m_changed, sender=Client.users.through)
