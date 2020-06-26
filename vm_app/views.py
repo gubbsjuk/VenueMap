@@ -133,7 +133,9 @@ def filter_venues_by_clients(request):
 def filter_venues_by_user(request):
     ''' Utilitary function to filter Venues by user permitted to view.
         Currently not implemented and returns Venue.objects.get() '''
-    venue = request.user.client_user_perms.venues.all()
+    client = request.user.profile.selected_client
+    perms = Client_user_permissions.objects.get(user=request.user, client=client)
+    venue = perms.venues.all()
     return venue
 
 def filter_rooms_by_user(request):
