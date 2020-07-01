@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import AbstractUser, Permission
 from django.core.validators import validate_comma_separated_integer_list, MinLengthValidator, MaxLengthValidator
+import pytz
 
 # Create your models here.
 
@@ -35,6 +36,7 @@ class Venue(models.Model):
     streetaddress = models.CharField(max_length=100)
     zipcode = models.SmallIntegerField()
     city = models.CharField(max_length=100)
+    country = models.CharField(max_length=2, choices=pytz.country_names.items())
     arenalayout = models.FileField(upload_to='arenalayouts')
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
 
@@ -79,7 +81,7 @@ class Room(models.Model):
     ''' Docstring, slutter du å mase nå? '''
     name = models.CharField(max_length=20)
     roomtype = models.ForeignKey('RoomType', on_delete=models.CASCADE)
-    venue = models.ForeignKey('Venue', on_delete=models.CASCADE)
+    venue = models.ForeignKey('Venue', on_delete=models.CASCADE, related_name='room')
     shape = models.CharField(max_length=10, null=True, blank=True, default="")
     coordinates = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True, default="")
 

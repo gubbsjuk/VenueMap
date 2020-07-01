@@ -93,6 +93,7 @@ def return_module(request, module):
                     enddate__lte=timezone.now().replace(hour=23, minute=59, second=59))[:5]
                 print(activities)
             for act in activities:
+                print(act.startdate)
                 jsonobj = {
                     'name'   : act.name,
                     'start'  : act.startdate,
@@ -267,14 +268,14 @@ def activity_create_view(request):
     '''
     View for creating new activities. Returns activity_create.html with a form named "form"
     '''
-
+    if request.method == 'GET':
+        form = ActivityForm()
     if request.method == 'POST':
         form = ActivityForm(request.POST)
-        print(form.errors)
         if form.is_valid():
             savedmodel = form.save()
             return HttpResponse(savedmodel.pk)
-    form = ActivityForm()
+
     return render(request, 'activity_create.html', {'form' : form})
 
 def profile_update_view(request):

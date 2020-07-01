@@ -90,7 +90,8 @@ function activitiesModule(data, today) {
                 var startDateTime = new Date(element["start"]);
 
                 if (today) {
-                    var startText = startDateTime.toLocaleTimeString();
+                    var startText = startDateTime.toLocaleTimeString()
+
                 }
                 else {
                     var startText = startDateTime.toDateString() + " - " + startDateTime.toLocaleTimeString();
@@ -155,13 +156,13 @@ function populateModule(modulePos, data) {
             headertext = document.createTextNode("My Venues:");
             divBody.appendChild(venueModule(data));
         }
-        if (moduletype == 2) { // ACTIVITIES
+        if (moduletype == 2) { // TODAY
+            headertext = document.createTextNode("Activities today:"); 
+            divBody.appendChild(activitiesModule(data, true));
+        }
+        if (moduletype == 3) { // ACTIVITIES
             headertext = document.createTextNode("Upcoming Activities:");
             divBody.appendChild(activitiesModule(data, false));
-        }
-        if (moduletype == 3) { // TODAY
-            headertext = document.createTextNode("Activities today:");
-            divBody.appendChild(activitiesModule(data, true));
         }
         if (moduletype == 4) { // ROOMS
             headertext = document.createTextNode("My Rooms:");

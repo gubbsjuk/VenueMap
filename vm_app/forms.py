@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Permission
 from tempus_dominus.widgets import DateTimePicker, DatePicker, TimePicker
 from .models import Room, Activities, Profile, Venue, Client_user_permissions
 from django.contrib.contenttypes.models import ContentType
+import pytz
 
  
 # TODO: FIX THIS.....
@@ -36,6 +37,7 @@ class SplitDateTimeWidget(widgets.MultiWidget):
         return u''.join(rendered_widgets)
 
 class ActivityForm(ModelForm):
+
     class Meta:
         model = Activities
         fields = '__all__'
@@ -43,6 +45,18 @@ class ActivityForm(ModelForm):
             'startdate' : DateTimePicker(),
             'enddate' : DateTimePicker()
         }
+
+    def save(self, commit=True):
+        m = super(ActivityForm, self).save(commit=False)
+        venue = Venue.objects.get(room=m.room)
+        tz_name = pytz.country_timezones[venue.country]
+        naive = m.startdate.replace(tzinfo=None)
+        m.startdate = pytz.timezone(tz_name[0]).localize(naive)
+        if commit:
+            m.save()
+        return m
+
+
 
 class HomeModelNamesForm(Form):
     ''' docstring '''
