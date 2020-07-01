@@ -11,6 +11,7 @@ class Command(BaseCommand):
         call_command('loaddata', 'initial_users.json')
         call_command('loaddata', 'initial_venues.json')
         call_command('loaddata', 'initial_misc.json')
+        call_command('loaddata', 'Home_modules.json')
         call_command('createsuperuser')
         # Fix the passwords of fixtures
         for user in User.objects.all():
