@@ -128,7 +128,7 @@ class Activities(models.Model):
 
 #TODO: Does this need to save profile when created=False ?
 @receiver(post_save, sender=User)
-def update_user_profile(instance, created):
+def update_user_profile(instance, created, **kwargs):
     '''
     Signal to create or update profile upon User creation or update.
     '''
