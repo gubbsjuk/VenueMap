@@ -5,9 +5,11 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpRe
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.decorators import permission_required
-from .models import Venue, Room, Activities, HomeModuleNames, Profile, Client_user_permissions, Client
-from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm, UserForm, ProfileForm, EditUserForm, EditUserVenueForm
 from django.contrib.auth.models import User
+from .models import Venue, Room, Activities, HomeModuleNames
+from .models import Profile, Client_user_permissions, Client
+from .forms import CreateRoomForm, HomeModelNamesForm, ActivityForm
+from .forms import UserForm, ProfileForm, EditUserForm, EditUserVenueForm
 
 # Create your views here.
 def home_view(request):
@@ -279,6 +281,11 @@ def activity_create_view(request):
     return render(request, 'activity_create.html', {'form' : form})
 
 def profile_update_view(request):
+    '''
+    View to update the users profile with the initial data set to the currently stored data.
+
+    context: 'userForm', 'profileForm'
+    '''
 
     #TODO: Filter out changed data and only update that.
     if request.method == "GET":
@@ -292,7 +299,7 @@ def profile_update_view(request):
         initial_data_profile = {
             'phone_number' : request.user.profile.phone_number,
         }
-        
+
         user_form = UserForm(initial=initial_data_user)
         profile_form = ProfileForm(initial=initial_data_profile)
 
@@ -315,6 +322,11 @@ def profile_update_view(request):
 
 @permission_required('auth.change_permission')
 def manage_users_view(request):
+    '''
+    View to manage users beloning to the selected client.
+    context: 'usrs'
+    '''
+
     client = request.user.profile.selected_client
     users = User.objects.filter(clients=client)
 
@@ -322,13 +334,21 @@ def manage_users_view(request):
 
 @permission_required('auth.change_permission')
 def edit_user_view(request, pk):
+    '''
+    View to edit a users permissions.
+    context:
+    'user': User to be edited
+    'form': EditUserForm. Form to edit user permissions.
+    'venue_form' EditUserVenueForm. Form to select wich venues are visible to user.
+    '''
+
     user = User.objects.get(pk=pk)
     client = request.user.profile.selected_client
     perms = Client_user_permissions.objects.get(user=request.user, client=client)
     venues = perms.venues.all().values_list('id', flat=True)
-    rClients = request.user.clients.all().values_list('id', flat=True)
+    req_clients = request.user.clients.all().values_list('id', flat=True)
 
-    if user.clients.filter(id__in=rClients).exists():
+    if user.clients.filter(id__in=req_clients).exists():
         if request.method == 'GET':
             form = EditUserForm(user=user)
             venue_form = EditUserVenueForm(user=user, venues=venues, client=client)
@@ -350,6 +370,11 @@ def edit_user_view(request, pk):
     return HttpResponseForbidden()
 
 def change_client(request, pk):
+    '''
+    View/Function to populate the users permissions
+    with the Client specific permissions upon change of selected_client.
+    '''
+
     user = request.user
     client_user_perms = Client_user_permissions.objects.get(client=pk, user=user)
 
