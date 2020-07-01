@@ -1,12 +1,13 @@
 ''' Define forms for the application here. '''
-from django.forms import ModelForm, Select, HiddenInput, Form, ChoiceField, widgets, Media, ValidationError, SelectMultiple, Form, BooleanField
+from django.forms import ModelForm, Form, widgets, Media, ValidationError
+from django.forms import Select, HiddenInput, ChoiceField, BooleanField
 from django.contrib.auth.models import User, Permission
 from tempus_dominus.widgets import DateTimePicker, DatePicker, TimePicker
-from .models import Room, Activities, Profile, Venue, Client_user_permissions
-from django.contrib.contenttypes.models import ContentType
 import pytz
+from .models import Room, Activities, Profile, Venue, Client_user_permissions
 
- 
+
+
 # TODO: FIX THIS.....
 class SplitDateTimeWidget(widgets.MultiWidget):
     def __init__(self, attrs=None):
@@ -37,7 +38,10 @@ class SplitDateTimeWidget(widgets.MultiWidget):
         return u''.join(rendered_widgets)
 
 class ActivityForm(ModelForm):
-
+    '''
+    Form for creating activities.
+    Timezone of start and end is set to the timezone of the venue-country.
+    '''
     class Meta:
         model = Activities
         fields = '__all__'
@@ -47,14 +51,19 @@ class ActivityForm(ModelForm):
         }
 
     def save(self, commit=True):
-        m = super(ActivityForm, self).save(commit=False)
-        venue = Venue.objects.get(room=m.room)
+        temp = super(ActivityForm, self).save(commit=False)
+        venue = Venue.objects.get(room=temp.room)
         tz_name = pytz.country_timezones[venue.country]
-        naive = m.startdate.replace(tzinfo=None)
-        m.startdate = pytz.timezone(tz_name[0]).localize(naive)
+
+        naivestart = temp.startdate.replace(tzinfo=None)
+        naiveend = temp.enddate.replace(tzinfo=None)
+
+        temp.startdate = pytz.timezone(tz_name[0]).localize(naivestart)
+        temp.enddate = pytz.timezone(tz_name[0]).localize(naiveend)
+
         if commit:
-            m.save()
-        return m
+            temp.save()
+        return temp
 
 
 
@@ -77,7 +86,7 @@ class CreateRoomForm(ModelForm):
             'shape' : HiddenInput(),
         }
 
-    def clean(self, *args, **kwargs):
+    def clean(self):
         cleaned_data = super().clean()
         shape = cleaned_data.get("shape")
         coords = cleaned_data.get("coordinates")
@@ -85,26 +94,44 @@ class CreateRoomForm(ModelForm):
 
         if shape == 'rect':
             coord_amount = 4
-        
+
         if coord_amount != len(coords.split(',')):
             msg = ValidationError("Not the expected amount of coordinates.")
             self.add_error('coordinates', msg)
-        
+
         return cleaned_data
 
 class ProfileForm(ModelForm):
+    '''
+    Form for changing user-profile.
+    Implements a phone-number field that expects country-code.
+    '''
 
     class Meta:
         model = Profile
         fields = {'phone_number',}
 
 class UserForm(ModelForm):
-
+    '''
+    Form for changing user fields.
+    Implemented fields: username, first_name, last_name, email
+    '''
     class Meta:
         model = User
         fields = {'username', 'first_name', 'last_name', 'email'}
 
 class EditUserVenueForm(Form):
+    '''
+    Form for changing what venues user has access to.
+    Creates boolean field for each venue,
+    and sets the initial state to indicate whether the user currently has access or not.
+
+    Expects the following kwargs:
+    'user': The user wich permissions to change.
+    'client': The currently selected client
+    'venues': The applicable venues.
+    '''
+
     user = None
     venues = None
 
@@ -125,6 +152,10 @@ class EditUserVenueForm(Form):
             self.fields[venue_id].initial = perms.venues.filter(pk=venue).exists()
 
     def save(self):
+        '''
+        Override of the save function.
+        Updates the m2m relationship according to valid booleanfields.
+        '''
 
         for venue in self.venues:
             key = 'venue_' + str(venue)
@@ -134,6 +165,13 @@ class EditUserVenueForm(Form):
                 self.user.profile.venues.remove(Venue.objects.get(id=venue))
 
 class EditUserForm(Form):
+    '''
+    Form to edit user permissions.
+
+    Expects the following kwargs:
+    'user': The user to be affected.
+    '''
+
     user = None
     venue_can_edit = BooleanField(label="Can edit venues:", required=False)
     venue_can_delete = BooleanField(label="Can delete venues:", required=False)
@@ -162,6 +200,11 @@ class EditUserForm(Form):
 
 
     def save(self):
+        '''
+        Overridden save function.
+        Updates the user_permissions m2m relationship according to valid boleanfields.
+        '''
+
         for key, value in self.perms.items():
             permission = Permission.objects.get(codename=value.split('.')[1])
             if self.cleaned_data.get(key):
